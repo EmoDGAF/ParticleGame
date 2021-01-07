@@ -76,12 +76,12 @@ void checkLeftClicks(sf::RenderWindow& window)
         switch (particle_button) {
         case SAND:
         {
-            for (int i = 0; i < 15 ; ++i) {
+            for (int i = 0; i < 11    ; ++i) {
                 world.setParticle('s', clickPosi.x + addX, clickPosi.y +addY);
                 //setFlag('n', clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
                 addX++;
-                 //addY++;
-                number++;
+                //addY++;
+                //number++;
                 //if(clickPosi.x + addX> Width || clickPosi.y +addY > Hight)
                 //  return;
             }
@@ -128,8 +128,10 @@ void update()
 
             //std::cout << "===========START============" << std::endl;
 
-            if(currentC == 's')  //SAND
-                sand.moveSand(x, y);
+            if(currentC == 's'){  //SAND
+                if(!sand.moveSand(x, y))
+                    sand.moveSandInWater(x, y); //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
+            }
 
             if(currentC == 'w')  //WATER
                 water.moveWater(x, y);
@@ -163,7 +165,7 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(Width, Hight), "SFML window");
 
-    window.setFramerateLimit(100);
+    window.setFramerateLimit(111);
 
     std::vector<Button> buttons_v;
     makeOptionButtons(window, buttons_v);
@@ -190,6 +192,13 @@ int main()
         }
     }
 
+    //make water bed
+    for (int y = Hight-vel-30; y < Hight-vel    ; ++y) {
+        for (int x = 0; x < Width  ; ++x) {
+            world.setParticle('w', x, y);
+            world.setFlag('f', x, y);
+        }
+    }
 
     sf::VertexArray va;
     va.setPrimitiveType(sf::Points);
@@ -207,7 +216,7 @@ int main()
         }
 
         window.clear();
-        window.draw(s); //background
+        //window.draw(s); //background
 
         checkLeftClicks(window);
 
@@ -262,6 +271,7 @@ int main()
                 world.setFlag('n', x, y);
             }
         }
+
         //for sand bottom - setting the bottom unmovable prevents distotion and going all image below the window
         for (int y = Hight-vel; y < Hight    ; ++y) {
             for (int x = vel; x < Width-vel ; ++x) {

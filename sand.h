@@ -6,7 +6,8 @@ class Sand
 {
 public:
     Sand();
-    void moveSand(int &x, int &y);
+    bool moveSand(int &x, int &y);
+    void moveSandInWater(int& x, int &y);
 private:
     //jiggering of the solid elements is caused by flag n
 

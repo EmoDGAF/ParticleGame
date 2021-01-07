@@ -91,7 +91,6 @@ void Water::updateDownLeft(int  x, int  y, int  move_by, auto flag)
 
 void Water::updateLeft(int  x, int  y, int  move_by, auto flag)
 {
-
     world.setParticle('n', x, y );
     world.setParticle('w', x-move_by , y);
     world.setFlag(flag, x-move_by , y);
