@@ -90,11 +90,9 @@ void checkLeftClicks(sf::RenderWindow& window)
         case ROCK:
         {
             for (int i = 0; i < 10 ; ++i) {
-                world.setParticle('r', clickPosi.x + addX, clickPosi.y +addY);
-                //setFlag('f', clickPosi.x + addX, clickPosi.y +addY);
-                addX++;
-
-                number++;
+                for (int y = 0; y < 10; ++y) {
+                    world.setParticle('r', clickPosi.x + i, clickPosi.y +y);
+                }
             }
         }
         break;
@@ -129,9 +127,9 @@ void update()
             //std::cout << "===========START============" << std::endl;
 
             if(currentC == 's'){  //SAND
-                if(!sand.moveSand(x, y))
+                if(!sand.moveSand(x, y))        //only if sand in air was NOT moved, check if there is possibility to move sand in water
                     sand.moveSandInWater(x, y); //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
-            }
+            }   //moveSand and moveSandInWater cant both be activated, cause moveSand may move current particle and moveSandInWater may move it AGAIN
 
             if(currentC == 'w')  //WATER
                 water.moveWater(x, y);
@@ -216,7 +214,7 @@ int main()
         }
 
         window.clear();
-        //window.draw(s); //background
+        window.draw(s); //background
 
         checkLeftClicks(window);
 
