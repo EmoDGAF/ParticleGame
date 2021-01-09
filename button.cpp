@@ -37,7 +37,8 @@ void Button::setType(char t)
         this->setFillColor(sf::Color::Magenta);
     else if(type=='s')
         this->setFillColor(sf::Color::Yellow);
-
+    else if(type=='o')
+        this->setFillColor(sf::Color(136,0,21));
 }
 
 char Button::getType() const

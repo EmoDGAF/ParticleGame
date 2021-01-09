@@ -4,6 +4,7 @@
 #include "water.h"
 #include "sand.h"
 #include "world.h"
+#include "oil.h"
 const int Width = 800 ;
 const int Hight = 800 ;
 int particle_button;
@@ -14,6 +15,7 @@ int number =0;
 Water water;
 World world;
 Sand sand;
+Oil oil;
 int vel = 15;
 
 void drawOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
@@ -37,9 +39,14 @@ void makeOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
     waterButton.setPosition(140,0);
     waterButton.setType('w');
 
+    Button oilButton;
+    oilButton.setPosition(160,0);
+    oilButton.setType('o');
+
     buttons_v.push_back(sandButton);
     buttons_v.push_back(rockButton);
     buttons_v.push_back(waterButton);
+    buttons_v.push_back(oilButton);
 }
 
 void checkButtonsState(std::vector<Button>& buttons_v, sf::RenderWindow& window)
@@ -61,7 +68,7 @@ void checkButtonsState(std::vector<Button>& buttons_v, sf::RenderWindow& window)
 //here we re just adding particles, the particles have different positions, the vector doesnt order them by their position
 void checkLeftClicks(sf::RenderWindow& window)
 {
-    enum particles_enum {SAND, ROCK, WATER};
+    enum particles_enum {SAND, ROCK, WATER, OIL};
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
@@ -93,6 +100,14 @@ void checkLeftClicks(sf::RenderWindow& window)
                 for (int y = 0; y < 10; ++y) {
                     world.setParticle('r', clickPosi.x + i, clickPosi.y +y);
                 }
+            }
+        }
+        break;
+        case OIL:
+        {
+            for (int i = 0; i < 50 ; ++i) {
+                world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
+                addY++;
             }
         }
         break;
@@ -128,12 +143,16 @@ void update()
 
             if(currentC == 's'){  //SAND
                 if(!sand.moveSand(x, y))        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                    sand.moveSandInWater(x, y); //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
+                    if(!sand.moveSandInWater(x, y))  //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
+                        sand.moveSandInOil(x,y); //chec sand in oil possibility only if the previous conditions failed - that provides some optimalisation
+
             }   //moveSand and moveSandInWater cant both be activated, cause moveSand may move current particle and moveSandInWater may move it AGAIN
 
             if(currentC == 'w')  //WATER
                 water.moveWater(x, y);
 
+            if(currentC == 'o')  //WATER
+                oil.moveOil(x, y);
         }//end for
     }
 
@@ -163,7 +182,7 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(Width, Hight), "SFML window");
 
-    window.setFramerateLimit(111);
+    window.setFramerateLimit(100);
 
     std::vector<Button> buttons_v;
     makeOptionButtons(window, buttons_v);
@@ -245,6 +264,13 @@ int main()
                         v.color = sf::Color(34, 97, 149);
                     else
                         v.color = sf::Color(47, 47, 255);
+                    v.position.x = x;
+                    v.position.y = y;
+                    va.append(v);
+                }
+                else if(world.getParticle(x,y) == 'o')
+                {
+                    v.color = sf::Color(136,0,21);
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);

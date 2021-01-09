@@ -66,7 +66,7 @@ bool Sand::moveSand(int& x, int& y)
     return 0;
 }
 
-void Sand::moveSandInWater(int &x, int &y)
+bool Sand::moveSandInWater(int &x, int &y)
 {
     int velSandInWater = 2;
     int moveBy=0;
@@ -84,7 +84,7 @@ void Sand::moveSandInWater(int &x, int &y)
 
     if(is_go){ //else go down by velocity
         updateWaterDown(x, y, moveBy , 'f');
-        return;
+        return 1;
     }
 
 
@@ -101,7 +101,7 @@ void Sand::moveSandInWater(int &x, int &y)
     if(is_go)
     {
         updateWaterDownLeft(x, y, moveBy, 'f');
-        return;
+        return 1;
     }
 
     //down right ==========:
@@ -118,6 +118,64 @@ void Sand::moveSandInWater(int &x, int &y)
     if(is_go)
     {
         updateWaterDownRight(x, y, moveBy, 'f');
+        return 1;
+    }
+
+    return 0; // no match
+}
+
+void Sand::moveSandInOil(int &x, int &y)
+{
+    int velSandInWater = 2;
+    int moveBy=0;
+    bool is_go = false;
+
+    for (int z = 1; z <= velSandInWater; ++z) {
+        lookUpPrt = world.getParticle(x, y+z );
+        if(lookUpPrt == 'o'){
+            moveBy =z;
+            is_go = true;
+        }
+        else if(lookUpPrt == 'r') break; //when it breaks moveBy is z-1 and as so goes to is_go
+
+    } //end for
+
+    if(is_go){ //else go down by velocity
+        updateOilDown(x, y, moveBy , 'f');
+        return;
+    }
+
+
+    //down left ===========:
+    is_go= false;
+    for (int z = 1; z <= velSandInWater; ++z) {
+        lookUpPrt = world.getParticle(x-z, y+z );
+        if(lookUpPrt == 'o'){
+            moveBy =z;
+            is_go = true;
+        }
+        else if(lookUpPrt == 'r') break;
+    }
+    if(is_go)
+    {
+        updateOilDownLeft(x, y, moveBy, 'f');
+        return;
+    }
+
+    //down right ==========:
+    is_go= false;
+    for (int z = 1; z <= velSandInWater; ++z) {
+        lookUpPrt = world.getParticle(x+z, y+z );
+        if(lookUpPrt == 'o' ){
+            moveBy =z;
+            is_go = true;
+        }
+        else if(lookUpPrt == 'r') break;
+
+    }
+    if(is_go)
+    {
+        updateOilDownRight(x, y, moveBy, 'f');
         return;
     }
 }
@@ -170,6 +228,31 @@ void Sand::updateWaterDownRight(int x, int y, int move_by, char flag)
 {
     //std::cout << "updateWaterDownRight" << std::endl;
     world.setParticle('w', x, y );
+    world.setParticle('s', x+move_by, y+move_by);
+    world.setFlag('f', x+move_by, y+move_by);
+}
+
+// Sand into OIL:
+void Sand::updateOilDown(int &x, int &y, int &move_by, char flag)
+{
+    //std::cout << "updateWaterDown" << std::endl;
+    world.setParticle('o', x, y );
+    world.setParticle('s', x, y+move_by);
+    world.setFlag('f', x, y+move_by);
+}
+
+void Sand::updateOilDownLeft(int &x, int &y, int &move_by, char flag)
+{
+    //std::cout << "updateWaterDownLeft" << std::endl;
+    world.setParticle('o', x, y );
+    world.setParticle('s', x-move_by , y+move_by );
+    world.setFlag('f', x-move_by , y+move_by );
+}
+
+void Sand::updateOilDownRight(int x, int y, int move_by, char flag)
+{
+    //std::cout << "updateWaterDownRight" << std::endl;
+    world.setParticle('o', x, y );
     world.setParticle('s', x+move_by, y+move_by);
     world.setFlag('f', x+move_by, y+move_by);
 }

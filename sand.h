@@ -7,7 +7,8 @@ class Sand
 public:
     Sand();
     bool moveSand(int &x, int &y);
-    void moveSandInWater(int& x, int &y);
+    bool moveSandInWater(int& x, int &y);
+    void moveSandInOil(int &x, int &y);
 private:
     //jiggering of the solid elements is caused by flag n
 
@@ -22,6 +23,12 @@ private:
     void updateWaterDown(int &x, int &y, int &move_by, char flag);
     void updateWaterDownLeft(int&  x, int&  y, int & move_by, char flag);
     void updateWaterDownRight(int  x, int  y, int  move_by, char flag);
+
+    //SAND into OIL:
+    void updateOilDown(int &x, int &y, int &move_by, char flag);
+    void updateOilDownLeft(int&  x, int&  y, int & move_by, char flag);
+    void updateOilDownRight(int  x, int  y, int  move_by, char flag);
+
 private:
     World world;
     int vel;  //velocity
