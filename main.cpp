@@ -5,6 +5,7 @@
 #include "sand.h"
 #include "world.h"
 #include "oil.h"
+#include "fire.h"
 const int Width = 800 ;
 const int Hight = 800 ;
 int particle_button;
@@ -16,6 +17,7 @@ Water water;
 World world;
 Sand sand;
 Oil oil;
+Fire fire;
 int vel = 15;
 
 void drawOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
@@ -43,10 +45,15 @@ void makeOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
     oilButton.setPosition(160,0);
     oilButton.setType('o');
 
+    Button fireButton;
+    fireButton.setPosition(180,0);
+    fireButton.setType('f');
+
     buttons_v.push_back(sandButton);
     buttons_v.push_back(rockButton);
     buttons_v.push_back(waterButton);
     buttons_v.push_back(oilButton);
+    buttons_v.push_back(fireButton);
 }
 
 void checkButtonsState(std::vector<Button>& buttons_v, sf::RenderWindow& window)
@@ -68,7 +75,7 @@ void checkButtonsState(std::vector<Button>& buttons_v, sf::RenderWindow& window)
 //here we re just adding particles, the particles have different positions, the vector doesnt order them by their position
 void checkLeftClicks(sf::RenderWindow& window)
 {
-    enum particles_enum {SAND, ROCK, WATER, OIL};
+    enum particles_enum {SAND, ROCK, WATER, OIL, FIRE};
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
@@ -107,6 +114,14 @@ void checkLeftClicks(sf::RenderWindow& window)
         {
             for (int i = 0; i < 50 ; ++i) {
                 world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
+                addY++;
+            }
+        }
+        break;
+        case FIRE:
+        {
+            for (int i = 0; i < 10 ; ++i) {
+                world.setParticle('f', clickPosi.x + addX, clickPosi.y +addY);
                 addY++;
             }
         }
@@ -153,6 +168,10 @@ void update()
 
             if(currentC == 'o')  //WATER
                 oil.moveOil(x, y);
+
+            if(currentC == 'f')  //WATER
+                fire.moveFire(x, y);
+
         }//end for
     }
 
@@ -271,6 +290,19 @@ int main()
                 else if(world.getParticle(x,y) == 'o')
                 {
                     v.color = sf::Color(136,0,21);
+                    v.position.x = x;
+                    v.position.y = y;
+                    va.append(v);
+                }
+                else if(world.getParticle(x,y) == 'f')
+                {
+                    int r = std::rand()%3;
+                    if(r == 1)
+                        v.color = sf::Color::Red;
+                    else if(r == 2)
+                        v.color = sf::Color(255, 127, 39);
+                    else if(r == 3)
+                        v.color = sf::Color(255, 255, 0);
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);

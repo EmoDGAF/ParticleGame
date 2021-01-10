@@ -1,11 +1,11 @@
-#include "water.h"
+#include "fire.h"
 
-Water::Water()
+Fire::Fire()
 {
 
 }
 
-void Water::moveWater(int& x, int& y)
+void Fire::moveFire(int& x, int& y)
 {
     bool is_go = false;
     //down ================:
@@ -18,7 +18,7 @@ void Water::moveWater(int& x, int& y)
         else if(lookUpPrt == 'r' || lookUpPrt == 's') break;
     }
     if(is_go){
-        updateDown(x, y, moveBy, 'f');
+        updateDown(x, y, moveBy);
         return; // means: continue, skip the for loop and dont go to "down left" and "down right"
     }
 
@@ -34,7 +34,7 @@ void Water::moveWater(int& x, int& y)
         }else if(lookUpPrt == 'r' || lookUpPrt == 's') break;
     }
     if(is_go){
-        updateDownLeft(x, y, moveBy, 'f');
+        updateDownLeft(x, y, moveBy);
         return; // means: continue, skip the for loop and dont go to "down right"
     }
 
@@ -48,11 +48,11 @@ void Water::moveWater(int& x, int& y)
         }else if(lookUpPrt == 'r' || lookUpPrt == 's') break;
     }
     if(is_go){
-        updateDownRight(x, y, moveBy, 'f');
+        updateDownRight(x, y, moveBy);
         return; // = continue
     }
 
-/*Side Movement*/
+    /*Side Movement*/
 
     //right ================:
     is_go = false;
@@ -64,7 +64,7 @@ void Water::moveWater(int& x, int& y)
         }else if(lookUpPrt == 's' || lookUpPrt == 'r') break;
     }
     if(is_go){
-        updateRight(x, y, moveBy, 'f');
+        updateRight(x, y, moveBy);
         return; // = continue
     }
 
@@ -78,46 +78,51 @@ void Water::moveWater(int& x, int& y)
         }else if(lookUpPrt == 's' || lookUpPrt == 'r') break;
     }
     if(is_go){
-        updateLeft(x, y, moveBy, 'f');
+        updateLeft(x, y, moveBy);
         return; // = continue
     }
+
+/*INTERACTIONS*/
+
+
+
 }
 
 
-void Water::updateDownLeft(int  x, int  y, int  move_by, auto flag)
+void Fire::updateDownLeft(int  x, int  y, int  move_by)
 {
     world.setParticle('n', x, y );
-    world.setParticle('w', x-move_by , y+move_by );
-    world.setFlag(flag, x-move_by , y+move_by );
+    world.setParticle('f', x-move_by , y+move_by );
+    world.setFlag('f', x-move_by , y+move_by );
 }
 
-void Water::updateLeft(int  x, int  y, int  move_by, auto flag)
+void Fire::updateLeft(int  x, int  y, int  move_by)
 {
     world.setParticle('n', x, y );
-    world.setParticle('w', x-move_by , y);
-    world.setFlag(flag, x-move_by , y);
+    world.setParticle('f', x-move_by , y);
+    world.setFlag('f', x-move_by , y);
 }
 
-void Water::updateDownRight(int  x, int  y, int  move_by, auto flag)
+void Fire::updateDownRight(int  x, int  y, int  move_by)
 {
     world.setParticle('n', x, y );
-    world.setParticle('w', x+move_by, y+move_by);
-    world.setFlag(flag, x+move_by, y+move_by);
+    world.setParticle('f', x+move_by, y+move_by);
+    world.setFlag('f', x+move_by, y+move_by);
 }
 
-void Water::updateRight(int  x, int  y, int  move_by, auto flag)
+void Fire::updateRight(int  x, int  y, int  move_by)
 {
     world.setParticle('n', x, y );
-    world.setParticle('w', x+move_by , y);
-    world.setFlag(flag, x+move_by , y);
+    world.setParticle('f', x+move_by , y);
+    world.setFlag('f', x+move_by , y);
 }
 
-void Water::updateDown(int  x, int  y, int  move_by, auto flag)
+void Fire::updateDown(int  x, int  y, int  move_by)
 {
     //std::cout << "y+move_by: " << y+move_by << std::endl;
-//    if(y+move_by >   Hight)
-//        move_by = 0;
+    //    if(y+move_by >   Hight)
+    //        move_by = 0;
     world.setParticle('n', x, y );
-    world.setParticle('w', x, y+move_by);
-    world.setFlag(flag, x, y+move_by);
+    world.setParticle('f', x, y+move_by);
+    world.setFlag('f', x, y+move_by);
 }

@@ -31,7 +31,7 @@ bool Sand::moveSand(int& x, int& y)
     }
 
 
-    //down left ===========:
+    //down left ==========:
     is_go= false;
     for (int z = 1; z <= vel; ++z) {
         lookUpPrt = world.getParticle(x-z, y+z );

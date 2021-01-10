@@ -5,6 +5,7 @@ CONFIG -= qt
 
 SOURCES += \
         button.cpp \
+        fire.cpp \
         main.cpp \
         oil.cpp \
         sand.cpp \
@@ -39,6 +40,7 @@ DEPENDPATH += $$PWD/../SFML-2.5.1/include
 
 HEADERS += \
     button.h \
+    fire.h \
     oil.h \
     sand.h \
     water.h \
