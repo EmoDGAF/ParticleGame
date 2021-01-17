@@ -1,128 +1,144 @@
 #include "fire.h"
-
+#include <iostream>
 Fire::Fire()
 {
 
 }
 
+//int Fire::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
+//{
+//    int i;
+//    char lookUpPrt;
+
+//    for (i = 1; i <= vel; ++i)
+//    {
+//        lookUpPrt = world.getParticle(x+dir_x*i, y+dir_y*i);
+//        if(lookUpPrt == air){   }
+//        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire)
+//        {
+
+//            return  i-1 ;
+//        }
+//    }
+//    return  i ;
+//}
+
+//int Fire::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
+//{
+//    int moveBy =0;
+//    for (int z = 1; z <= vel; ++z) {
+//        lookUpPrt = world.getParticle(x+dir_x*z, y+dir_y*z);
+//        if(lookUpPrt == air){
+//            moveBy =z; // moveBy becomes the last z fulfilling the if condition
+//        }
+//        else if(lookUpPrt == rock || lookUpPrt == sand || lookUpPrt == fire) return moveBy;
+//    }
+//    return moveBy;    //so it calls updateDown(x, y, moveBy, air, fire);
+//}
+
+int Fire::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
+{
+    int i;
+    char lookUpPrt;
+    for (i = 1; i <= vel; ++i)
+    {
+        lookUpPrt = world.getParticle(x+dir_x*i, y+dir_y*i);
+        if(lookUpPrt == air){}
+        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire)
+        {
+            return i-1;
+        }
+    }
+    return i-1;
+}
+
+
 void Fire::moveFire(int& x, int& y)
 {
-    bool is_go = false;
-    //down ================:
-    for (int z = 1; z <= vel; ++z) {
-        lookUpPrt = world.getParticle(x, y+z );
-        if(lookUpPrt == 'n'){
-            is_go = true;
-            moveBy =z; // moveBy becomes the last z fulfilling the if condition
+
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, vel);
+    if(moveBy!= 0)
+    {
+        updateDown(x, y, moveBy, air, fire);
+        return;
+    }
+
+/*down sides*/
+    if(std::rand()%2 == 1){
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, vel);
+        if(moveBy!= 0)
+        {
+            updateDownLeft(x, y, moveBy, air, fire);
+            return;
         }
-        else if(lookUpPrt == 'r' || lookUpPrt == 's') break;
-    }
-    if(is_go){
-        updateDown(x, y, moveBy);
-        return; // means: continue, skip the for loop and dont go to "down left" and "down right"
-    }
+    }else
+    {
 
-
-
-    //down left ===========:
-    is_go = false;
-    for (int z = 1; z <= vel; ++z) {
-        lookUpPrt = world.getParticle(x-z, y+z );
-        if(lookUpPrt == 'n'){
-            is_go = true;
-            moveBy =z;
-        }else if(lookUpPrt == 'r' || lookUpPrt == 's') break;
-    }
-    if(is_go){
-        updateDownLeft(x, y, moveBy);
-        return; // means: continue, skip the for loop and dont go to "down right"
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, vel);
+        if(moveBy!= 0)
+        {
+            updateDownRight(x, y, moveBy, air, fire);
+            return;
+        }
     }
 
-    //down right ==========:
-    is_go = false;
-    for (int z = 1; z <= vel; ++z) {
-        lookUpPrt = world.getParticle(x+z, y+z );
-        if(lookUpPrt == 'n'){
-            is_go = true;
-            moveBy =z;
-        }else if(lookUpPrt == 'r' || lookUpPrt == 's') break;
-    }
-    if(is_go){
-        updateDownRight(x, y, moveBy);
-        return; // = continue
-    }
+/*sides*/
 
-    /*Side Movement*/
-
-    //right ================:
-    is_go = false;
-    for (int z = 1; z <= vel; ++z) {
-        lookUpPrt = world.getParticle(x+z, y);
-        if(lookUpPrt == 'n'){
-            is_go = true;
-            moveBy =z;
-        }else if(lookUpPrt == 's' || lookUpPrt == 'r') break;
+    if(std::rand()%2 == 1){
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, vel);
+        if(moveBy!= 0)
+        {
+            updateLeft(x, y, moveBy, air, fire);
+            return;
+        }
+    }else
+    {
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, vel);
+        if(moveBy!= 0)
+        {
+            updateRight(x, y, moveBy, air, fire);
+            return;
+        }
     }
-    if(is_go){
-        updateRight(x, y, moveBy);
-        return; // = continue
-    }
-
-    //left ================:
-    is_go = false;
-    for (int z = 1; z <= vel; ++z) {
-        lookUpPrt = world.getParticle(x-z, y);
-        if(lookUpPrt == 'n'){
-            is_go = true;
-            moveBy =z;
-        }else if(lookUpPrt == 's' || lookUpPrt == 'r') break;
-    }
-    if(is_go){
-        updateLeft(x, y, moveBy);
-        return; // = continue
-    }
-
-/*INTERACTIONS*/
-
-
 
 }
 
 
-void Fire::updateDownLeft(int  x, int  y, int  move_by)
+void Fire::updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    world.setParticle('n', x, y );
-    world.setParticle('f', x-move_by , y+move_by );
+    world.setParticle(currentPrt, x, y );
+    world.setParticle(nextPrt, x-move_by , y+move_by );
     world.setFlag('f', x-move_by , y+move_by );
 }
 
-void Fire::updateLeft(int  x, int  y, int  move_by)
+void Fire::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    world.setParticle('n', x, y );
-    world.setParticle('f', x-move_by , y);
+    world.setParticle(currentPrt, x, y );
+    world.setParticle(nextPrt, x-move_by , y);
     world.setFlag('f', x-move_by , y);
 }
 
-void Fire::updateDownRight(int  x, int  y, int  move_by)
+void Fire::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    world.setParticle('n', x, y );
-    world.setParticle('f', x+move_by, y+move_by);
+    world.setParticle(currentPrt, x, y );
+    world.setParticle(nextPrt, x+move_by, y+move_by);
     world.setFlag('f', x+move_by, y+move_by);
 }
 
-void Fire::updateRight(int  x, int  y, int  move_by)
+void Fire::updateRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    world.setParticle('n', x, y );
-    world.setParticle('f', x+move_by , y);
+    world.setParticle(currentPrt, x, y );
+    world.setParticle(nextPrt, x+move_by , y);
     world.setFlag('f', x+move_by , y);
 }
 
-void Fire::updateDown(int  x, int  y, int  move_by)
+void Fire::updateDown(int&  x, int&  y, int  move_by, char& currentPrt, char& nextPrt)
 {
-    //std::cout << "y+move_by: " << y+move_by << std::endl;
-    //    if(y+move_by >   Hight)
-    //        move_by = 0;
-    world.setParticle('n', x, y );
-    world.setParticle('f', x, y+move_by);
+    world.setParticle(currentPrt, x, y );
+    world.setParticle(nextPrt, x, y+move_by);
     world.setFlag('f', x, y+move_by);
 }
+
+// INTERACTIONS:
+
+

@@ -5,7 +5,7 @@
 class Oil
 {
 public:
-    Oil();
+    Oil(World& world_);
     void moveOil(int& x, int& y);
 
 private:

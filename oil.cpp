@@ -1,9 +1,9 @@
 #include "oil.h"
 #include <iostream>
 
-Oil::Oil()
+Oil::Oil(World& world_)
 {
-
+    world = world_;
 }
 
 void Oil::moveOil(int& x, int& y)

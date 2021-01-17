@@ -4,21 +4,57 @@
 #include "water.h"
 #include "sand.h"
 #include "world.h"
-#include "oil.h"
-#include "fire.h"
-const int Width = 800 ;
-const int Hight = 800 ;
+//#include "oil.h"
+//#include "fire.h"
+#include "particle.h"
+#include "vector"
+const int Width = 800;
+const int Hight = 800;
 int particle_button;
-char matrix[Width*Hight];
-char flags[Width*Hight];
+//char matrix[Width*Hight];
+char flags[Width*Hight]; //incorporating it inside class slows down the code
+char flagsClean[Width*Hight];
 int number =0;
 
-Water water;
-World world;
-Sand sand;
-Oil oil;
-Fire fire;
+
+std::vector<Particle*> matrix;
+
+
+//Oil oil;
+//Fire fire;
 int vel = 15;
+
+World world;
+
+void initialiseFlagsAndCleanFlags()
+{
+    for (int y = 0; y < Hight; ++y) {
+        for (int x = 0 +vel; x < Width-vel; ++x) { //jiggering of the solid elements is caused by flag n and this +vel prevents it
+            flags[x+ y*Hight] = 'n';
+        }
+    }
+
+    //for sand bottom - setting the bottom unmovable prevents distotion and going all image below the window
+    for (int y = Hight-vel; y < Hight    ; ++y) {
+        for (int x = vel; x < Width-vel ; ++x) {
+            flagsClean[x+ y*Hight] = 'n';
+        }
+    }
+
+    for (int y = Hight-vel; y < Hight    ; ++y) {
+        for (int x = 0; x < Width  ; ++x) {
+            //world.setParticle('s', x, y);
+            flags[x+ y*Hight] = 'f';
+            flagsClean[x+ y*Hight] = 'f';
+        }
+    }
+}
+
+void cleanFlags()
+{
+    std::copy(std::begin(flagsClean), std::end(flagsClean), std::begin(flags));
+    //flags = flagsClean;
+}
 
 void drawOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
 {
@@ -92,7 +128,8 @@ void checkLeftClicks(sf::RenderWindow& window)
         {
             for (int i = 0; i < 11    ; ++i) {
                 world.setParticle('s', clickPosi.x + addX, clickPosi.y +addY);
-                //setFlag('n', clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
+                world.setFlag('n', clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
+
                 addX++;
                 //addY++;
                 //number++;
@@ -110,27 +147,27 @@ void checkLeftClicks(sf::RenderWindow& window)
             }
         }
         break;
-        case OIL:
-        {
-            for (int i = 0; i < 50 ; ++i) {
-                world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
-                addY++;
-            }
-        }
+//        case OIL:
+//        {
+//            for (int i = 0; i < 50 ; ++i) {
+//                world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
+//                addY++;
+//            }
+//        }
         break;
-        case FIRE:
-        {
-            for (int i = 0; i < 10 ; ++i) {
-                world.setParticle('f', clickPosi.x + addX, clickPosi.y +addY);
-                addY++;
-            }
-        }
-        break;
+//        case FIRE:
+//        {
+//            for (int i = 0; i < 10 ; ++i) {
+//                world.setParticle('f', clickPosi.x + addX, clickPosi.y +addY);
+//                addY++;
+//            }
+//        }
+//        break;
         case WATER:
         {
             for (int i = 0; i < 100 ; ++i) {
                 world.setParticle('w', clickPosi.x + addX, clickPosi.y +addY);
-                //setFlag('f', clickPosi.x + addX, clickPosi.y +addY);
+                world.setFlag('f', clickPosi.x + addX, clickPosi.y +addY);
                 //addX++;
                 addY++;
                 number++;
@@ -144,7 +181,7 @@ void checkLeftClicks(sf::RenderWindow& window)
 }
 
 
-void update()
+void update(Sand& sand, Water& water)
 {
     for (int y = 0; y < Hight ; ++y) {
         for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
@@ -158,19 +195,19 @@ void update()
 
             if(currentC == 's'){  //SAND
                 if(!sand.moveSand(x, y))        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                    if(!sand.moveSandInWater(x, y))  //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
-                        sand.moveSandInOil(x,y); //chec sand in oil possibility only if the previous conditions failed - that provides some optimalisation
+                   if(!sand.moveSandInWater(x, y))  //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
+                     sand.moveSandInOil(x,y); //chec sand in oil possibility only if the previous conditions failed - that provides some optimalisation
 
             }   //moveSand and moveSandInWater cant both be activated, cause moveSand may move current particle and moveSandInWater may move it AGAIN
 
             if(currentC == 'w')  //WATER
                 water.moveWater(x, y);
 
-            if(currentC == 'o')  //WATER
-                oil.moveOil(x, y);
+//            if(currentC == 'o')  //OIL
+//                oil.moveOil(x, y);
 
-            if(currentC == 'f')  //WATER
-                fire.moveFire(x, y);
+//            if(currentC == 'f')  //FIRE
+//                fire.moveFire(x, y);
 
         }//end for
     }
@@ -202,6 +239,21 @@ int main()
     sf::RenderWindow window(sf::VideoMode(Width, Hight), "SFML window");
 
     window.setFramerateLimit(100);
+    int size = Width*Hight;
+    initialiseFlagsAndCleanFlags();
+
+    matrix.reserve(size);
+    for (int i = 0; i < size; ++i) {
+        Particle* p = new Particle;
+        //p->setFlag('n');
+
+        matrix.push_back(p);
+    }
+    std::cout << "matrix in main: " << matrix.size() << std::endl;
+    world.passMatrix(matrix);
+
+    Sand sand(world);
+    Water water(world);
 
     std::vector<Button> buttons_v;
     makeOptionButtons(window, buttons_v);
@@ -210,15 +262,6 @@ int main()
         std::cout << "loading image failed" << std::endl;
     sf::Sprite s(t);
 
-
-
-
-    for (int y = 0; y < Hight ; ++y) {
-        for (int x = 0; x < Width; ++x) {
-            world.setParticle('n', x, y);
-            world.setFlag('n', x, y);
-        }
-    }
 
     //make sand bottom
     for (int y = Hight-vel; y < Hight    ; ++y) {
@@ -241,6 +284,7 @@ int main()
     sf::Vertex v;
 
 
+    std::cout << "matrix address in main: " << &matrix << std::endl;
 
     while (window.isOpen())
     {
@@ -255,6 +299,7 @@ int main()
         window.draw(s); //background
 
         checkLeftClicks(window);
+
 
         //std::cout << "particle_button: " << particle_button << std::endl;
         //Draw:
@@ -279,39 +324,39 @@ int main()
                 }
                 else if(world.getParticle(x,y) == 'w')
                 {
-                    if(std::rand()%2 == 1)
-                        v.color = sf::Color(34, 97, 149);
-                    else
+//                    if(std::rand()%2 == 1)
+//                        v.color = sf::Color(34, 97, 149);
+//                    else
                         v.color = sf::Color(47, 47, 255);
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);
                 }
-                else if(world.getParticle(x,y) == 'o')
-                {
-                    v.color = sf::Color(136,0,21);
-                    v.position.x = x;
-                    v.position.y = y;
-                    va.append(v);
-                }
-                else if(world.getParticle(x,y) == 'f')
-                {
-                    int r = std::rand()%3;
-                    if(r == 1)
-                        v.color = sf::Color::Red;
-                    else if(r == 2)
-                        v.color = sf::Color(255, 127, 39);
-                    else if(r == 3)
-                        v.color = sf::Color(255, 255, 0);
-                    v.position.x = x;
-                    v.position.y = y;
-                    va.append(v);
-                }
+//                else if(world.getParticle(x,y) == 'o')
+//                {
+//                    v.color = sf::Color(136,0,21);
+//                    v.position.x = x;
+//                    v.position.y = y;
+//                    va.append(v);
+//                }
+//                else if(world.getParticle(x,y) == 'f')
+//                {
+//                    int r = std::rand()%3;
+//                    if(r == 1)
+//                        v.color = sf::Color::Red;
+//                    else if(r == 2)
+//                        v.color = sf::Color(255, 127, 39);
+//                    else if(r == 3)
+//                        v.color = sf::Color(255, 255, 0);
+//                    v.position.x = x;
+//                    v.position.y = y;
+//                    va.append(v);
+//                }
             }
         }
 
 
-        update();
+        update(sand, water);
         window.draw(va);
         va.clear();
 
@@ -321,19 +366,8 @@ int main()
 
         window.display();
 
+        cleanFlags();
 
-        for (int y = 0; y < Hight; ++y) {
-            for (int x = 0 +vel; x < Width-vel; ++x) { //jiggering of the solid elements is caused by flag n and this +vel prevents it
-                world.setFlag('n', x, y);
-            }
-        }
-
-        //for sand bottom - setting the bottom unmovable prevents distotion and going all image below the window
-        for (int y = Hight-vel; y < Hight    ; ++y) {
-            for (int x = vel; x < Width-vel ; ++x) {
-                world.setFlag('f', x, y);
-            }
-        }
     }
     return EXIT_SUCCESS;
 }

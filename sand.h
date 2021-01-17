@@ -2,39 +2,40 @@
 #define SAND_H
 #include "world.h"
 
+
 class Sand
 {
 public:
-    Sand();
+    Sand(World &world_);
     bool moveSand(int &x, int &y);
     bool moveSandInWater(int& x, int &y);
-    void moveSandInOil(int &x, int &y);
+    bool moveSandInOil(int &x, int &y);
 private:
     //jiggering of the solid elements is caused by flag n
 
-    //Sand into void:
-    void updateDownLeft(int&  x, int&  y, int & move_by, char flag);
-    void updateLeft(int&  x, int&  y, int&  move_by, char flag);
-    void updateDownRight(int  x, int  y, int  move_by, char flag);
-    void updateRight(int&  x, int&  y, int&  move_by, char flag);
-    void updateDown(int &x, int &y, int &move_by, char flag);
+    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel );
 
-    //SAND into WATER:
-    void updateWaterDown(int &x, int &y, int &move_by, char flag);
-    void updateWaterDownLeft(int&  x, int&  y, int & move_by, char flag);
-    void updateWaterDownRight(int  x, int  y, int  move_by, char flag);
+    void updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 
-    //SAND into OIL:
-    void updateOilDown(int &x, int &y, int &move_by, char flag);
-    void updateOilDownLeft(int&  x, int&  y, int & move_by, char flag);
-    void updateOilDownRight(int  x, int  y, int  move_by, char flag);
+    void updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+
+    void updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+
+
 
 private:
     World world;
-    int vel;  //velocity
-    int velSandInWater;
-    //int moveBy;
+    int vel  ;  //velocity
+    int velSandInWater ;
+
     char lookUpPrt;
+
+    char fire = 'f';
+    char oil = 'o';
+    char water = 'w';
+    char rock = 'r';
+    char sand = 's';
+    char air = 'n';
 };
 
 #endif // SAND_H
