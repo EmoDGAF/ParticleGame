@@ -4,101 +4,71 @@
 Sand::Sand(World& world_)
 {
     world = world_;
-    vel = 10 ; // sand speed
+    vel = velSandInAir ; // sand speed
     velSandInWater =2;
+    velSandInAir = 10;
 }
 
+
+char particleTypeToMove;
 int Sand::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
 {
     int i;
     char lookUpPrt;
     for (i = 1; i < vel; ++i)
     {
-        lookUpPrt = world.getParticle(x+dir_x*i, y+dir_y*i);
-        if(lookUpPrt == air){  }
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire)
+
+        lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
+        char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
+        if(lookUpPrt == air ){ particleTypeToMove = air;  vel = 5 + std::rand()%15; } //vel = 7 + std::rand()%8 ;
+        if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + std::rand()%8; }
+
+        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire || flag=='f')
         {
             return i-1;
         }
+
     }
+
     return i-1;
 }
- 
-bool Sand::moveSand(int& x, int& y)
+
+
+
+void Sand::moveSand(int& x, int& y)
 {
-    //std::cout << "moveSand" << std::endl;
- 
-    int moveBy=0;
+    //vel = vel + std::rand()% 140 - vel ; //changing velocity prevents pumping particles up
+
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, vel);
-    if(moveBy!= 0)
+    if(moveBy> 0)
     {
-        updateDown(x, y, moveBy, air, sand);
-        return 1;
+        updateDown(x, y, moveBy, particleTypeToMove, sand);
+        return ;
     }
-
-
-        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, vel);
-        if(moveBy!= 0)
-        {
-            updateDown(x, y, moveBy, air, sand);
-            return 1;
-        }
-        /*down sides*/
-
-
-
-        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, vel);
-        if(moveBy!= 0)
-        {
-            updateDownLeft(x, y, moveBy, air, sand);
-            return 1;
-        }
-
-
-        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, vel);
-        if(moveBy!= 0)
-        {
-            updateDownRight(x, y, moveBy, air, sand);
-            return 1;
-        }
-
-
-    return 0;
-}
-
-bool Sand::moveSandInWater(int &x, int &y)
-{
-
-    int moveBy;
-
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, velSandInWater);
-
-    if(moveBy!= 0)
-    {
-        updateDown(x, y, moveBy, water, sand);
-        return 1;
-    }
-
     /*down sides*/
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, velSandInWater);
-    if(moveBy!= 0)
+
+
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, vel);
+    if(moveBy> 0)
     {
-        updateDownLeft(x, y, moveBy, water, sand);
-        return 1;
+        updateDownLeft(x, y, moveBy, particleTypeToMove, sand);
+        return ;
     }
 
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, velSandInWater);
-    if(moveBy!= 0)
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, vel);
+    if(moveBy> 0)
     {
-        updateDownRight(x, y, moveBy, water, sand);
-        return 1;
+        updateDownRight(x, y, moveBy, particleTypeToMove, sand);
+        return ;
     }
 
 
-    return 0;
+    return ;
 }
+
+
 
 bool Sand::moveSandInOil(int &x, int &y)
 {
@@ -136,29 +106,36 @@ bool Sand::moveSandInOil(int &x, int &y)
 //jiggering of the solid elements is caused by flag n
 void Sand::updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    //std::cout << "updateDownLeft" << std::endl;
+    if(world.getFlag( x-move_by , y+move_by )=='f')
+        return;
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x-move_by , y+move_by );
     world.setFlag('f', x-move_by , y+move_by );
+    world.setFlag('f', x, y );
 }
 
 
 void Sand::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    //std::cout << "updateDownRight" << std::endl;
+    if(world.getFlag( x+move_by, y+move_by)=='f')
+        return;
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x+move_by, y+move_by);
     world.setFlag('f', x+move_by, y+move_by);
+    world.setFlag('f', x, y );
 }
 
 
 
 void Sand::updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    //std::cout << "updateDown" << std::endl;
+
+    if(world.getFlag( x, y+move_by)=='f')
+        return;
+
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x, y+move_by);
+    world.setFlag('f', x, y );
     world.setFlag('f', x, y+move_by);
 }
-
 

@@ -19,10 +19,16 @@ void World::setParticle(char t, int x, int y)
     matrix[x+ y*Hight]->settype(t);
 }
 
-char World::getParticle(int x, int y)
+char World::getParticleType(int x, int y)
 {
     //return matrix[x+ y*Hight]->getType();
     return matrix[x+ y*Hight]->getType();
+}
+
+Particle* World::getParticle(int x, int y)
+{
+    //return matrix[x+ y*Hight]->getType();
+    return matrix[x+ y*Hight];
 }
 
 void World::setFlag(char f, int x, int y)
@@ -37,13 +43,4 @@ char World::getFlag(int x, int y)
     return flags[x+ y*Hight];
 }
 
-void World::setZ(char f, int x, int y)
-{
-    matrix[x+ y*Hight]->setZ('z');
-
-}
-
-char World::getZ(int x, int y)
-{
-    return matrix[x+ y*Hight]->getZ() ;
-}
+ 

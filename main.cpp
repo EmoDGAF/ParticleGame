@@ -8,6 +8,9 @@
 //#include "fire.h"
 #include "particle.h"
 #include "vector"
+#include <random>
+#include <algorithm>
+#define FPS 100
 const int Width = 800;
 const int Hight = 800;
 int particle_button;
@@ -126,11 +129,11 @@ void checkLeftClicks(sf::RenderWindow& window)
         switch (particle_button) {
         case SAND:
         {
-            for (int i = 0; i < 11    ; ++i) {
+            for (int i = 0; i < 10; ++i) {
                 world.setParticle('s', clickPosi.x + addX, clickPosi.y +addY);
-                world.setFlag('n', clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
+                //world.setFlag('n', clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
 
-                addX++;
+                 addX++;
                 //addY++;
                 //number++;
                 //if(clickPosi.x + addX> Width || clickPosi.y +addY > Hight)
@@ -181,40 +184,43 @@ void checkLeftClicks(sf::RenderWindow& window)
 }
 
 
-void update(Sand& sand, Water& water)
+
+
+void updateLeft(Sand& sand, Water& water) //its for normal particles, gases should be rervesed
 {
-    for (int y = 0; y < Hight ; ++y) {
+    for (int y = Hight-1; y >= 0 ; --y) {
+        for (int x = Width-1; x >= 0 ; --x) { // the 15 prevents moviing to the other end of the window
+
+            if(world.getFlag(x,y) == 'f') continue;
+            char currentC   = world.getParticleType(x,y);
+            if(currentC == 'n' || currentC == 'r') continue;
+
+            if(currentC == 's')  //SAND
+                sand.moveSand(x, y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
+
+            if(currentC == 'w') //WATER
+                water.moveWater(x, y);
+        }//end for
+    }
+}
+
+void updateRight(Sand& sand, Water& water) //its for normal particles, gases should be rervesed
+{
+    for (int y = Hight-1; y >= 0 ; --y) {
         for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
 
             if(world.getFlag(x,y) == 'f') continue;
-            char currentC   = world.getParticle(x,y);
+            char currentC   = world.getParticleType(x,y);
             if(currentC == 'n' || currentC == 'r') continue;
 
+            if(currentC == 's')  //SAND
+                sand.moveSand(x, y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
 
-            //std::cout << "===========START============" << std::endl;
-
-            if(currentC == 's'){  //SAND
-                if(!sand.moveSand(x, y))        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                   if(!sand.moveSandInWater(x, y))  //if sand wasnt moved, move sand in water (otherwise sand gets multiplied in water)
-                     sand.moveSandInOil(x,y); //chec sand in oil possibility only if the previous conditions failed - that provides some optimalisation
-
-            }   //moveSand and moveSandInWater cant both be activated, cause moveSand may move current particle and moveSandInWater may move it AGAIN
-
-            if(currentC == 'w')  //WATER
+            if(currentC == 'w') //WATER
                 water.moveWater(x, y);
-
-//            if(currentC == 'o')  //OIL
-//                oil.moveOil(x, y);
-
-//            if(currentC == 'f')  //FIRE
-//                fire.moveFire(x, y);
-
         }//end for
     }
-
 }
-
-
 
 //        sf::Color upC;
 //        sf::Color upleftC;
@@ -232,13 +238,13 @@ void update(Sand& sand, Water& water)
 
 //[20:40:19] <~fir> sodaj randa zeby nie spadalo w dol tylko w jeden z 3 dolow
 
-
+static bool updateDirSwitch = false;
 
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(Width, Hight), "SFML window");
 
-    window.setFramerateLimit(100);
+    window.setFramerateLimit(FPS);
     int size = Width*Hight;
     initialiseFlagsAndCleanFlags();
 
@@ -305,7 +311,7 @@ int main()
         //Draw:
         for (int y = 0; y < Hight ; ++y) { // Hight -vel would cause we would see bottom sand but it would still be there
             for (int x = 0+vel; x < Width-vel ; ++x) { // +vel and -vel prevents sand sitting on the edges, cause now we DONT DISPLAY edges lol
-                if(world.getParticle(x,y) == 's' || world.getParticle(x,y) == 'y'){
+                if(world.getParticleType(x,y) == 's' || world.getParticleType(x,y) == 'y'){
 
                     if(std::rand()%2 == 1)
                         v.color = sf::Color(255, 127, 39);
@@ -315,14 +321,14 @@ int main()
                     v.position.y = y;
                     va.append(v);
                 }
-                else if(world.getParticle(x,y) == 'r')
+                else if(world.getParticleType(x,y) == 'r')
                 {
                     v.color = sf::Color::Magenta;
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);
                 }
-                else if(world.getParticle(x,y) == 'w')
+                else if(world.getParticleType(x,y) == 'w')
                 {
 //                    if(std::rand()%2 == 1)
 //                        v.color = sf::Color(34, 97, 149);
@@ -355,8 +361,16 @@ int main()
             }
         }
 
-
-        update(sand, water);
+      // update(sand, water);
+        if(updateDirSwitch== false){
+            updateLeft(sand, water);
+            updateDirSwitch=true;
+        }
+        else
+        {
+            updateRight(sand, water);
+            updateDirSwitch=false;
+        }
         window.draw(va);
         va.clear();
 

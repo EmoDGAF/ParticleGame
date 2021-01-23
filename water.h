@@ -18,7 +18,7 @@ private:
     void updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 
     World world;
-    int vel =   6     ; //velocity
+    int vel =   15     ; //velocity
     int moveBy;
     char lookUpPrt;
 
