@@ -4,7 +4,7 @@
 #include "water.h"
 #include "sand.h"
 #include "world.h"
-//#include "oil.h"
+#include "oil.h"
 //#include "fire.h"
 #include "particle.h"
 #include "vector"
@@ -150,13 +150,13 @@ void checkLeftClicks(sf::RenderWindow& window)
             }
         }
         break;
-//        case OIL:
-//        {
-//            for (int i = 0; i < 50 ; ++i) {
-//                world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
-//                addY++;
-//            }
-//        }
+        case OIL:
+        {
+            for (int i = 0; i < 10 ; ++i) {
+                world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
+                addY++;
+            }
+        }
         break;
 //        case FIRE:
 //        {
@@ -184,9 +184,52 @@ void checkLeftClicks(sf::RenderWindow& window)
 }
 
 
+//void updateLeft(Sand& sand, Water& water, Oil& oil) //its for normal particles, gases should be rervesed
+//{
+//    for (int y = Hight-1; y >= 0 ; --y) {
+//        for (int x = Width-1; x >= 0 ; --x) { // the 15 prevents moviing to the other end of the window
+
+//            if(world.getFlag(x,y) == 'f') continue;
+//            char currentC   = world.getParticleType(x,y);
+//            if(currentC == 'n' || currentC == 'r') continue;
+
+//            if(currentC == 's')  //SAND
+//                sand.moveSand(x, y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
+
+//            if(currentC == 'w') //WATER
+//                water.moveWater(x, y);
+
+//            if(currentC == 'o') //WATER
+//                oil.moveOil(x,y);
+//        }//end for
+//    }
+//}
+
+//void updateRight(Sand& sand, Water& water, Oil& oil) //its for normal particles, gases should be rervesed
+//{
 
 
-void updateLeft(Sand& sand, Water& water) //its for normal particles, gases should be rervesed
+//    for (int y = Hight-1; y <= 0 ; --y) {
+//        for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
+
+//            if(world.getFlag(x,y) == 'f') continue;
+//            char currentC   = world.getParticleType(x,y);
+//            if(currentC == 'n' || currentC == 'r') continue;
+
+//            if(currentC == 's')  //SAND
+//                sand.moveSand(x, y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
+
+//            if(currentC == 'w') //WATER
+//                water.moveWater(x, y);
+
+//            if(currentC == 'o') //OIL
+//                oil.moveOil(x, y);
+//        }//end for
+//    }
+//}
+
+
+void updateUpLeft(Sand& sand, Water& water, Oil& oil) //its for normal particles, gases should be rervesed
 {
     for (int y = Hight-1; y >= 0 ; --y) {
         for (int x = Width-1; x >= 0 ; --x) { // the 15 prevents moviing to the other end of the window
@@ -200,13 +243,18 @@ void updateLeft(Sand& sand, Water& water) //its for normal particles, gases shou
 
             if(currentC == 'w') //WATER
                 water.moveWater(x, y);
+
+            if(currentC == 'o') //WATER
+                oil.moveOil(x,y);
         }//end for
     }
 }
 
-void updateRight(Sand& sand, Water& water) //its for normal particles, gases should be rervesed
+void updateUpRight(Sand& sand, Water& water, Oil& oil) //its for normal particles, gases should be rervesed
 {
-    for (int y = Hight-1; y >= 0 ; --y) {
+
+
+    for (int y = Hight-1; y <= 0 ; --y) {
         for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
 
             if(world.getFlag(x,y) == 'f') continue;
@@ -218,9 +266,63 @@ void updateRight(Sand& sand, Water& water) //its for normal particles, gases sho
 
             if(currentC == 'w') //WATER
                 water.moveWater(x, y);
+
+            if(currentC == 'o') //OIL
+                oil.moveOil(x, y);
         }//end for
     }
 }
+
+
+
+void updateLeft(Sand& sand, Water& water, Oil& oil) //its for normal particles, gases should be rervesed
+{
+    for (int y = 0; y < Hight-1 ; ++y) {
+        for (int x = Width-1; x >= 0 ; --x) { // the 15 prevents moviing to the other end of the window
+
+            if(world.getFlag(x,y) == 'f') continue;
+            char currentC   = world.getParticleType(x,y);
+            if(currentC == 'n' || currentC == 'r') continue;
+
+            if(currentC == 's')  //SAND
+                sand.moveSand(x, y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
+
+            if(currentC == 'w') //WATER
+                water.moveWater(x, y);
+
+            if(currentC == 'o') //WATER
+                oil.moveOil(x,y);
+        }//end for
+    }
+}
+
+void updateRight(Sand& sand, Water& water, Oil& oil) //its for normal particles, gases should be rervesed
+{
+
+
+    for (int y = 0; y < Hight-1 ; ++y) {
+        for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
+
+            if(world.getFlag(x,y) == 'f') continue;
+            char currentC   = world.getParticleType(x,y);
+            if(currentC == 'n' || currentC == 'r') continue;
+
+            if(currentC == 's')  //SAND
+                sand.moveSand(x, y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
+
+            if(currentC == 'w') //WATER
+                water.moveWater(x, y);
+
+            if(currentC == 'o') //OIL
+                oil.moveOil(x, y);
+        }//end for
+    }
+}
+
+
+
+
+
 
 //        sf::Color upC;
 //        sf::Color upleftC;
@@ -233,12 +335,12 @@ void updateRight(Sand& sand, Water& water) //its for normal particles, gases sho
 //       // if( upC ==sf::Color::Yellow && upleftC==sf::Color::Yellow && uprightC==sf::Color::Yellow)
 //        if( upC ==sf::Color::Yellow)
 //          continue;
-//        //optimalisation
+        //optimalisation
 
-
-//[20:40:19] <~fir> sodaj randa zeby nie spadalo w dol tylko w jeden z 3 dolow
 
 static bool updateDirSwitch = false;
+
+static int switcher = 0;
 
 int main()
 {
@@ -260,6 +362,7 @@ int main()
 
     Sand sand(world);
     Water water(world);
+    Oil oil(world);
 
     std::vector<Button> buttons_v;
     makeOptionButtons(window, buttons_v);
@@ -338,13 +441,13 @@ int main()
                     v.position.y = y;
                     va.append(v);
                 }
-//                else if(world.getParticle(x,y) == 'o')
-//                {
-//                    v.color = sf::Color(136,0,21);
-//                    v.position.x = x;
-//                    v.position.y = y;
-//                    va.append(v);
-//                }
+                else if(world.getParticleType(x,y) == 'o')
+                {
+                    v.color = sf::Color(136,0,21);
+                    v.position.x = x;
+                    v.position.y = y;
+                    va.append(v);
+                 }
 //                else if(world.getParticle(x,y) == 'f')
 //                {
 //                    int r = std::rand()%3;
@@ -362,17 +465,42 @@ int main()
         }
 
       // update(sand, water);
-        if(updateDirSwitch== false){
-            updateLeft(sand, water);
-            updateDirSwitch=true;
+//        if(updateDirSwitch== false){
+//            updateLeft(sand, water,oil);
+//            updateDirSwitch=true;
+//        }
+//        else
+//        {
+//            updateRight(sand, water, oil);
+//            updateDirSwitch=false;
+//        }
+
+        if(switcher==0){
+            updateLeft(sand, water,oil);
+            switcher=1;
         }
-        else
+        else if(switcher==1)
         {
-            updateRight(sand, water);
-            updateDirSwitch=false;
+            updateUpLeft(sand, water, oil);
+            switcher =2;
         }
+        else if(switcher==2)
+        {
+            updateRight(sand, water, oil);
+            switcher =3;
+        }
+        else if(switcher==3)
+        {
+            updateUpRight(sand, water, oil);
+            switcher =0;
+        }
+
         window.draw(va);
         va.clear();
+
+
+
+
 
         //these need to be below update and draw so i cant write on buttons
         checkButtonsState(buttons_v, window);

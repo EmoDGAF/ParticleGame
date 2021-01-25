@@ -21,7 +21,7 @@ private:
 
     void updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 
-    void updateUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+
     void moveWaterAsideWhenMovesUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 private:
     World world;

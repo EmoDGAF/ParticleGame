@@ -20,10 +20,10 @@ int Sand::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, in
 
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
-        if(lookUpPrt == air ){ particleTypeToMove = air;  vel = 5 + std::rand()%15; } //vel = 7 + std::rand()%8 ;
-        if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + std::rand()%8; }
+        if(lookUpPrt == air ){ particleTypeToMove = air;  vel = vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
+        if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
 
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire || flag=='f')
+        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire)
         {
             return i-1;
         }
@@ -43,7 +43,7 @@ void Sand::moveSand(int& x, int& y)
     if(moveBy> 0)
     {
         updateDown(x, y, moveBy, particleTypeToMove, sand);
-        return ;
+            return ;
     }
     /*down sides*/
 
@@ -53,7 +53,7 @@ void Sand::moveSand(int& x, int& y)
     if(moveBy> 0)
     {
         updateDownLeft(x, y, moveBy, particleTypeToMove, sand);
-        return ;
+            return ;
     }
 
 
@@ -61,7 +61,7 @@ void Sand::moveSand(int& x, int& y)
     if(moveBy> 0)
     {
         updateDownRight(x, y, moveBy, particleTypeToMove, sand);
-        return ;
+            return ;
     }
 
 
@@ -112,17 +112,19 @@ void Sand::updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, cha
     world.setParticle(nextPrt, x-move_by , y+move_by );
     world.setFlag('f', x-move_by , y+move_by );
     world.setFlag('f', x, y );
+
 }
 
 
 void Sand::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    if(world.getFlag( x+move_by, y+move_by)=='f')
+    if(world.getFlag( x+move_by, y+move_by)=='f') //can check cause sand goes through water
         return;
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x+move_by, y+move_by);
     world.setFlag('f', x+move_by, y+move_by);
     world.setFlag('f', x, y );
+
 }
 
 
@@ -130,12 +132,12 @@ void Sand::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, ch
 void Sand::updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
 
-    if(world.getFlag( x, y+move_by)=='f')
+    if(world.getFlag( x, y+moveBy)=='f')
         return;
-
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x, y+move_by);
     world.setFlag('f', x, y );
     world.setFlag('f', x, y+move_by);
+
 }
 
