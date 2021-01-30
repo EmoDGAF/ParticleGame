@@ -19,9 +19,10 @@ int Sand::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, in
     {
 
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
-        char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
+        //char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
         if(lookUpPrt == air ){ particleTypeToMove = air;  vel = vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
         if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
+        if(lookUpPrt == oil ){ particleTypeToMove = oil; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
 
         else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire)
         {
@@ -35,7 +36,7 @@ int Sand::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, in
 
 
 
-void Sand::moveSand(int& x, int& y)
+bool Sand::moveSandinAir(int& x, int& y)
 {
     //vel = vel + std::rand()% 140 - vel ; //changing velocity prevents pumping particles up
 
@@ -43,7 +44,7 @@ void Sand::moveSand(int& x, int& y)
     if(moveBy> 0)
     {
         updateDown(x, y, moveBy, particleTypeToMove, sand);
-            return ;
+            return 1;
     }
     /*down sides*/
 
@@ -53,7 +54,7 @@ void Sand::moveSand(int& x, int& y)
     if(moveBy> 0)
     {
         updateDownLeft(x, y, moveBy, particleTypeToMove, sand);
-            return ;
+            return 1;
     }
 
 
@@ -61,46 +62,44 @@ void Sand::moveSand(int& x, int& y)
     if(moveBy> 0)
     {
         updateDownRight(x, y, moveBy, particleTypeToMove, sand);
-            return ;
+            return 1;
     }
 
 
-    return ;
+    return 0;
 }
 
 
 
 bool Sand::moveSandInOil(int &x, int &y)
 {
+//    int moveBy=0;
 
-    int moveBy=0;
+//    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, velSandInWater);
+//    if(moveBy!= 0)
+//    {
+//        updateDown(x, y, moveBy, particleTypeToMove, sand);
+//        return 1;
+//    }
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, velSandInWater);
-    if(moveBy!= 0)
-    {
-        updateDown(x, y, moveBy, oil, sand);
-        return 1;
-    }
+//    /*down sides*/
 
-    /*down sides*/
-    if(std::rand()%2 == 1){
-        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, velSandInWater);
-        if(moveBy!= 0)
-        {
-            updateDownLeft(x, y, moveBy, oil, sand);
-            return 1;
-        }
-    }else
-    {
-        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, velSandInWater);
-        if(moveBy!= 0)
-        {
-            updateDownRight(x, y, moveBy, oil, sand);
-            return 1;
-        }
-    }
+//        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, velSandInWater);
+//        if(moveBy!= 0)
+//        {
+//            updateDownLeft(x, y, moveBy, particleTypeToMove, sand);
+//            return 1;
+//        }
 
-    return 0;
+//        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, velSandInWater);
+//        if(moveBy!= 0)
+//        {
+//            updateDownRight(x, y, moveBy, particleTypeToMove, sand);
+//            return 1;
+//        }
+
+
+        return 0;
 }
 
 //jiggering of the solid elements is caused by flag n

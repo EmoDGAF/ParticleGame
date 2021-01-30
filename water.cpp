@@ -6,6 +6,8 @@ Water::Water(World &world_)
     vel =15;
 }
 
+
+
 int Water::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
 {
 
@@ -15,13 +17,17 @@ int Water::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, i
     for (i = 1; i <= vel; ++i)
     {
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
-        char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
-        if(lookUpPrt == air){}
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == water)
+
+        if(lookUpPrt == air ){ particleTypeToMove = air; }
+        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == water || lookUpPrt == oil)
         {
             return i-1;
         }
     }
+
+    if(x+i-1>= Width || x-i-1<=  0 || y+i-1 >=Hight || y-i-1 <= 0) //so water doesnt move through edges on the other side
+        return 0;
+
     return i-1;
 }
 
@@ -31,28 +37,28 @@ void Water::moveWater(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, 10);
     if(moveBy!= 0)
     {
-        updateDown(x, y, moveBy, air, water);
+        updateDown(x, y, moveBy, particleTypeToMove, water); //particleTypeToMove = air
         return;
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, 15);
     if(moveBy!= 0)
     {
-        updateDownLeft(x, y, moveBy, air, water);
+        updateDownLeft(x, y, moveBy, particleTypeToMove, water);
         return;
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, 15);
     if(moveBy!= 0)
     {
-        updateDownRight(x, y, moveBy, air, water);
+        updateDownRight(x, y, moveBy, particleTypeToMove, water);
         return;
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, 20);
     if(moveBy!= 0)
     {
-        updateRight(x, y, moveBy, air, water);
+        updateRight(x, y, moveBy, particleTypeToMove, water);
         return;
     }
 
@@ -61,7 +67,7 @@ void Water::moveWater(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, 20);
     if(moveBy!= 0)
     {
-        updateLeft(x, y, moveBy, air, water);
+        updateLeft(x, y, moveBy, particleTypeToMove, water);
         return;
     }
 

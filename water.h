@@ -21,6 +21,7 @@ private:
     int vel =   15     ; //velocity
     int moveBy;
     char lookUpPrt;
+    char particleTypeToMove;
 
     char fire = 'f';
     char oil = 'o';

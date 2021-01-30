@@ -7,7 +7,7 @@ class Sand
 {
 public:
     Sand(World &world_);
-    void moveSand(int &x, int &y);
+    bool moveSandinAir(int &x, int &y);
     bool moveSandInWater(int& x, int &y);
     bool moveSandInOil(int &x, int &y);
 private:

@@ -2,30 +2,30 @@
 #define FIRE_H
 #include "world.h"
 
+
 class Fire
 {
 public:
-    Fire();
-    void moveFire(int& x, int& y);
+    Fire(World& world_);
+    bool moveFire(int& x, int& y);
+    bool interact(char &particleToInteract, int& x, int& y);
 
 private:
-    void updateDown(int&  x, int&  y, int move_by, char& currentPrt, char& nextPrt);
-    void updateDownLeft(int&  x, int&  y, int&  move_by, char &currentPrt, char &nextPrt);
-    void updateLeft(int&  x, int&  y, int&  move_by, char &currentPrt, char &nextPrt);
-    void updateDownRight(int&  x, int&  y, int&  move_by, char &currentPrt, char &nextPrt);
-    void updateRight(int&  x, int&  y, int&  move_by, char &currentPrt, char &nextPrt);
-
     int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel );
+    int checkHowFarIsWaterInGivenDir(int x, int y, int dir_x, int dir_y, int vel );
 
-private:
+    void updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+    void updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+    void updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+    void updateRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+    void updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+    void updateUp(int &x, int &y, int &move_by, char &currentPrt, char &nextPrt);
 
     World world;
-    static const int velfire =   6     ; //velocity
-    int vel = 6;
-    int moveBy =0;
+    int vel =   15     ; //velocity
+    int moveBy;
     char lookUpPrt;
-    bool is_go = false;
-
+    char particleTypeToMove;
 
     char fire = 'f';
     char oil = 'o';
@@ -33,7 +33,7 @@ private:
     char rock = 'r';
     char sand = 's';
     char air = 'n';
-
+    char smoke = 'd';
 };
 
 #endif // FIRE_H
