@@ -225,7 +225,7 @@ void updateUpLeft(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) 
                  fire.moveFire(x, y) ;
                    // fire.interactWithWater(x, y);
 
-            if(currentC == 'd') //Smoke
+            if(currentC == 'd' || currentC == 'e') //Smoke
                 smoke.moveSmokeinAir(x,y);
         }//end for
     }
@@ -257,7 +257,7 @@ void updateUpRight(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke)
                 fire.moveFire(x, y);
 //                    fire.interactWithWater(x, y);
 
-            if(currentC == 'd') //Smoke
+            if(currentC == 'd' || currentC == 'e') //Smoke
                 smoke.moveSmokeinAir(x,y);
         }//end for
     }
@@ -289,7 +289,7 @@ void updateLeft(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) //
                 fire.moveFire(x, y);
             //                    fire.interactWithWater(x, y);
 
-            if(currentC == 'd') //Smoke
+            if(currentC == 'd' || currentC == 'e') //Smoke
                 smoke.moveSmokeinAir(x,y);
         }//end for
     }
@@ -321,7 +321,7 @@ void updateRight(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) /
                 fire.moveFire(x, y);
             //                    fire.interactWithWater(x, y);
 
-            if(currentC == 'd') //Smoke
+            if(currentC == 'd' || currentC == 'e') //Smoke
                 smoke.moveSmokeinAir(x,y);
         }//end for
     }
@@ -452,12 +452,28 @@ int main()
                 }
                  else if(world.getParticleType(x,y) == 'd') //smoke
                  {
-                     //v.color = sf::Color(195,195,195);
-                     v.color = sf::Color::Black;
+                    int r = std::rand()%2;
+                    if(r == 1)
+                        v.color = sf::Color(195,195,195);
+                    else
+                        v.color = sf::Color(101,118,118);
+
                      v.position.x = x;
                      v.position.y = y;
                      va.append(v);
                  }
+                else if(world.getParticleType(x,y) == 'e') //smoke
+                {
+                    int r = std::rand()%2;
+                    if(r == 1)
+                        v.color = sf::Color::Black;
+                    else
+                        v.color = sf::Color(160,104,104);
+
+                    v.position.x = x;
+                    v.position.y = y;
+                    va.append(v);
+                }
             }
         }
 

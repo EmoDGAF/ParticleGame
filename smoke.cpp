@@ -4,9 +4,10 @@
 Smoke::Smoke(World& world_)
 {
     world = world_;
+    velSandInAir = 10;
     vel = velSandInAir ; // sand speed
     velSandInWater =2;
-    velSandInAir = 10;
+
 }
 
 
@@ -25,7 +26,7 @@ int Smoke::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, i
         if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
         if(lookUpPrt == oil ){ particleTypeToMove = oil; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
 
-        else if(lookUpPrt == sand || lookUpPrt == rock  || lookUpPrt == smoke)
+        else if(lookUpPrt == sand || lookUpPrt == rock  || lookUpPrt == smoke )
         {
             return i-1;
         }

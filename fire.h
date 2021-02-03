@@ -8,10 +8,10 @@ class Fire
 public:
     Fire(World& world_);
     bool moveFire(int& x, int& y);
-    bool interact(char &particleToInteract, int& x, int& y);
+    void spreadFire(int& x, int& y);
 
 private:
-    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel );
+    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel , bool is_rand);
     int checkHowFarIsWaterInGivenDir(int x, int y, int dir_x, int dir_y, int vel );
 
     void updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
@@ -23,6 +23,7 @@ private:
 
     World world;
     int vel =   15     ; //velocity
+    int spreadFireVel;
     int moveBy;
     char lookUpPrt;
     char particleTypeToMove;
@@ -34,6 +35,7 @@ private:
     char sand = 's';
     char air = 'n';
     char smoke = 'd';
+    char smokeDark = 'e';
 };
 
 #endif // FIRE_H

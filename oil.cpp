@@ -8,7 +8,7 @@ Oil::Oil(World &world_)
 
 int Oil::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, char substancePrtMovesThrough , int vel)
 {
-    //vel = 10 + std::rand()%8;
+    vel = 10 + std::rand()%8;
     int i;
     char lookUpPrt;
     for (i = 1; i <= vel; ++i)
@@ -16,7 +16,7 @@ int Oil::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, cha
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         //char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
         if(lookUpPrt == air){}
-        else if(lookUpPrt == sand || lookUpPrt == rock ||lookUpPrt == oil  ||lookUpPrt == water  )
+        else if(lookUpPrt == sand || lookUpPrt == rock ||lookUpPrt == oil  ||lookUpPrt == water || lookUpPrt == smoke )
         {
             return i-1;
         }
@@ -35,7 +35,7 @@ int Oil::checkHowFarIsWaterInGivenDir(int x, int y, int dir_x, int dir_y, int ve
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         //char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
         if(lookUpPrt == water){}
-        else if(lookUpPrt == sand || lookUpPrt == rock ||lookUpPrt == oil  ||lookUpPrt == air)
+        else if(lookUpPrt == sand || lookUpPrt == rock ||lookUpPrt == oil  ||lookUpPrt == air ||lookUpPrt == smoke)
         {
             return i-1;
         }

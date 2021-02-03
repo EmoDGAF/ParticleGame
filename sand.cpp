@@ -20,7 +20,7 @@ int Sand::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, in
 
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         //char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
-        if(lookUpPrt == air ){ particleTypeToMove = air;  vel = vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
+        if(lookUpPrt == air ){ particleTypeToMove = air;  vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
         if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
         if(lookUpPrt == oil ){ particleTypeToMove = oil; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
 

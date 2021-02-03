@@ -35,6 +35,7 @@ private:
     char rock = 'r';
     char sand = 's';
     char air = 'n';
+    char smoke = 'd';
 };
 
 #endif // OIL_H

@@ -35,5 +35,6 @@ private:
     char sand = 's';
     char air = 'n';
     char smoke = 'd';
+    char smokeDark = 'e';
 };
 #endif // SMOKE_H
