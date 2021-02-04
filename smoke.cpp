@@ -44,6 +44,9 @@ int Smoke::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, i
 bool Smoke::moveSmokeinAir(int& x, int& y)
 {
     //vel = vel + std::rand()% 140 - vel ; //changing velocity prevents pumping particles up
+    //lifetime:
+    if(world.getParticle(x,y)->decreaseSmokeLifetime())
+        world.setParticle('n',x,y);
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, vel) ;
     if(moveBy> 0)
@@ -86,6 +89,9 @@ bool Smoke::moveSmokeinAir(int& x, int& y)
 
 bool Smoke::moveSmokeInOil(int &x, int &y)
 {
+    //lifetime:
+    if(world.getParticle(x,y)->decreaseSmokeLifetime())
+        world.setParticle('n',x,y);
     //    int moveBy=0;
 
     //    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, velSandInWater);

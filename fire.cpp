@@ -21,7 +21,7 @@ int Fire::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, in
         if(lookUpPrt == air ){ particleTypeToMove = air; }
         if(lookUpPrt == oil ){ particleTypeToMove = oil; }
         if(lookUpPrt == water ){ particleTypeToMove = water; }
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire || lookUpPrt == smoke) //without lookUpPrt == fire (fire is the current particle), fire would disappear when falling down
+        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire  ) //without lookUpPrt == fire (fire is the current particle), fire would disappear when falling down
         {
             return i-1;
         }
@@ -59,42 +59,63 @@ void Fire::spreadFire(int& x, int& y)
 
 bool Fire::moveFire(int& x, int& y)
 {
+    //std::cout << world.getParticle(x,y)->getLifetimeCount() << '\n';
+
+    //lifetime:
+    if(world.getParticle(x,y)->decreaseFireLifetime())
+        world.setParticle('n',x,y);
+
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, 10);
     if(moveBy!= 0)
     {
-        updateDown(x, y, moveBy, particleTypeToMove, fire); //particleTypeToMove = air
-        if(particleTypeToMove == water) //fire interacts with water
-            updateUp(x,y,moveBy, air, smoke);
-        else if(particleTypeToMove == oil) //fire interacts with oil
+        if(particleTypeToMove == air)
+            updateDown(x, y, moveBy, particleTypeToMove, fire); //particleTypeToMove = air/water/oil
+        else if(particleTypeToMove == water)  //fire interacts with water
+            updateDown(x,y,moveBy,smoke, smoke); //current is fire
+        else if(particleTypeToMove == oil){ //fire interacts with oil
             spreadFire(x,y);
+            updateUp(x,y,moveBy,smoke, smoke); //adds smoke
+        }
         return 1;
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, 15);
     if(moveBy!= 0)
     {
-        updateDownLeft(x, y, moveBy, particleTypeToMove, fire);
-        if(particleTypeToMove == oil) //fire interacts with oil
+        if(particleTypeToMove == air)
+            updateDownLeft(x, y, moveBy, particleTypeToMove, fire);
+        else if(particleTypeToMove == water)  //fire interacts with water
+            updateDownLeft(x,y,moveBy,smoke, smoke);
+        else if(particleTypeToMove == oil) //fire interacts with oil
             spreadFire(x,y);
+
         return 1;
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, 15);
     if(moveBy!= 0)
     {
-        updateDownRight(x, y, moveBy, particleTypeToMove, fire);
-        if(particleTypeToMove == oil) //fire interacts with oil
-           spreadFire(x,y);
+        if(particleTypeToMove == air)
+            updateDownRight(x, y, moveBy, particleTypeToMove, fire);
+        else if(particleTypeToMove == water)  //fire interacts with water
+            updateDownRight(x,y,moveBy,smoke, smoke);
+        else if(particleTypeToMove == oil) //fire interacts with oil
+            spreadFire(x,y);
+
+
         return 1;
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, 20);
     if(moveBy!= 0)
     {
-        updateRight(x, y, moveBy, particleTypeToMove, fire);
-        if(particleTypeToMove == oil) //fire interacts with oil
+        if(particleTypeToMove == air)
+            updateRight(x, y, moveBy, particleTypeToMove, fire);
+        else if(particleTypeToMove == oil) //fire interacts with oil
             spreadFire(x,y);
+
+
         return 1;
     }
 
@@ -103,35 +124,34 @@ bool Fire::moveFire(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, 20);
     if(moveBy!= 0)
     {
-        updateLeft(x, y, moveBy, particleTypeToMove, fire);
-        if(particleTypeToMove == oil) //fire interacts with oil
+        if(particleTypeToMove == air)
+            updateLeft(x, y, moveBy, particleTypeToMove, fire);
+        else if(particleTypeToMove == water)  //fire interacts with water
+            updateLeft(x,y,moveBy,smoke, smoke);
+        else if(particleTypeToMove == oil) //fire interacts with oil
             spreadFire(x,y);
+
+
         return 1;
     }
 
-//    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, 10);
-//    if(moveBy!= 0)
-//    {
-//       updateUp(x,y,moveBy, air, smoke);
-//       if(particleTypeToMove == oil) //fire interacts with oil
-//            spreadFire(x,y);
-//        return 1;
-//    }
+
 
     //TODO:
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, 10); //move fire up so when oil drops on it it burns
     if(moveBy!= 0)
     {
-//        if(particleTypeToMove == air)
-//           updateUp(x,y,moveBy, air, smoke);
-       if(particleTypeToMove!= air)
+       if(particleTypeToMove!= air) // if particleTypeToMove == air - then it would smoke while fire drops on rock or sand
              updateUp(x,y,moveBy, particleTypeToMove, smoke);
-       if(particleTypeToMove == oil){ //fire interacts with oil
-
-
+       else if(particleTypeToMove == water)  //fire interacts with water
+             updateUp(x,y,moveBy,smoke, smoke);
+       if(particleTypeToMove == oil){  //fire interacts with oil
+            updateUp(x,y,moveBy,fire, smoke);
             spreadFire(x,y);
        }
-        return 1;
+
+
+       return 1;
     }
 
 

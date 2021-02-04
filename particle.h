@@ -8,18 +8,18 @@ class Particle
 public:
     Particle();
 
-    void settype(char t);
-    char getType();
- 
+    unsigned int fireLifetime;
+    unsigned int smokeLifetime;
     char type;
-    //char flag;
     int x;
     int y;
-//    bool addPosAndcheckPosIfGoesUp(int x, int y);
     std::vector<int> prevPos_v;
-//    char getFlag();
-//    char setFlag(char f);
-
+public:
+    bool decreaseFireLifetime();
+    bool decreaseSmokeLifetime();
+    void settype(char t);
+    char getType();
+    unsigned int getLifetimeCount();
 };
 
 #endif // PARTICLE_H

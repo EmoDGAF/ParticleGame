@@ -24,7 +24,7 @@ int Sand::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, in
         if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
         if(lookUpPrt == oil ){ particleTypeToMove = oil; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
 
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire)
+        else if(lookUpPrt == sand || lookUpPrt == rock )
         {
             return i-1;
         }
