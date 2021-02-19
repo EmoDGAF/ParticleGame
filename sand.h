@@ -8,7 +8,7 @@ class Sand
 public:
     Sand(World &world_);
     bool moveSandinAir(int &x, int &y);
-    bool moveSandInWater(int& x, int &y);
+    bool moveSandInWater(int &x, int &y);
     bool moveSandInOil(int &x, int &y);
 private:
     //jiggering of the solid elements is caused by flag n
@@ -25,11 +25,14 @@ private:
     void moveWaterAsideWhenMovesUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 private:
     World world;
-    int vel  ;  //velocity
+
     int velSandInWater ;
     int velSandInAir ;
+    int velSandInOil ;
     char lookUpPrt;
+    char lookUpFlag;
     int moveBy;
+    char particleTypeToMove;
 
     char fire = 'f';
     char oil = 'o';
@@ -37,6 +40,7 @@ private:
     char rock = 'r';
     char sand = 's';
     char air = 'n';
+    char wood = 'v';
 };
 
 #endif // SAND_H

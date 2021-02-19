@@ -7,9 +7,8 @@ class Smoke
 {
 public:
     Smoke(World &world_);
-    bool moveSmokeinAir(int &x, int &y);
-    bool moveSmokeInWater(int& x, int &y);
-    bool moveSmokeInOil(int &x, int &y);
+    void moveSmoke(int &x, int &y);
+
 private:
     //jiggering of the solid elements is caused by flag n
 
@@ -27,6 +26,7 @@ private:
     char lookUpPrt;
     int moveBy;
     char particleTypeToMove;
+    char lookUpFlag;
 
     char fire = 'f';
     char oil = 'o';
@@ -36,5 +36,6 @@ private:
     char air = 'n';
     char smoke = 'd';
     char smokeDark = 'e';
+    char wood = 'v';
 };
 #endif // SMOKE_H

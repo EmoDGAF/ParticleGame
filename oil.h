@@ -7,10 +7,10 @@ class Oil
 {
 public:
     Oil(World& world_);
-    bool moveOilinAir(int& x, int& y);
-    bool moveOilinWater(int& x, int& y);
+    void moveOil(int& x, int& y);
+
 private:
-    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, char substancePrtMovesThrough, int vel);
+    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel);
     int  checkHowFarIsWaterInGivenDir(int x, int y, int dir_x, int dir_y, int vel);
 
 
@@ -28,6 +28,8 @@ private:
     int vel; //velocity
     int moveBy;
     char lookUpPrt;
+    char lookUpFlag;
+    char particleTypeToMove;
 
     char fire = 'f';
     char oil = 'o';
@@ -36,6 +38,7 @@ private:
     char sand = 's';
     char air = 'n';
     char smoke = 'd';
+    char wood = 'v';
 };
 
 #endif // OIL_H

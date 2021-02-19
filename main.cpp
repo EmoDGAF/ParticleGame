@@ -11,6 +11,7 @@
 #include <random>
 #include <algorithm>
 #include "smoke.h"
+#include "wood.h"
 
 #define FPS 100
 const int Width = 800;
@@ -25,31 +26,41 @@ int buttonYsize = 20;
 std::vector<Particle*> matrix;
 
 
-int vel = 15;
+int vel = 20;
 
 World world;
+char fire = 'f';
+char oil = 'o';
+char water = 'w';
+char rock = 'r';
+char sand = 's';
+char air = 'n';
+char smoke = 'd';
+char wood = 'v';
 
+char f = 'f';
+char n = 'n';
 
 void initialiseFlagsAndCleanFlags()
 {
     for (int y = 0; y < Hight; ++y) {
         for (int x = 0 +vel; x < Width-vel; ++x) { //jiggering of the solid elements is caused by flag n and this +vel prevents it
-            flags[x+ y*Hight] = 'n';
+            flags[x+ y*Hight] = n;
         }
     }
 
     //for sand bottom - setting the bottom unmovable prevents distotion and going all image below the window
     for (int y = Hight-vel; y < Hight    ; ++y) {
         for (int x = vel; x < Width-vel ; ++x) {
-            flagsClean[x+ y*Hight] = 'n';
+            flagsClean[x+ y*Hight] = n;
         }
     }
 
     for (int y = Hight-vel; y < Hight    ; ++y) {
         for (int x = 0; x < Width  ; ++x) {
             //world.setParticle('s', x, y);
-            flags[x+ y*Hight] = 'f';
-            flagsClean[x+ y*Hight] = 'f';
+            flags[x+ y*Hight] = f;
+            flagsClean[x+ y*Hight] = f;
         }
     }
 }
@@ -71,28 +82,31 @@ void makeOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
 {
     Button sandButton;
     sandButton.setPosition(100,0);
-    sandButton.setType('s');
+    sandButton.setType(sand);
 
     Button rockButton;
     rockButton.setPosition(120,0);
-    rockButton.setType('r');
+    rockButton.setType(rock);
 
     Button waterButton;
     waterButton.setPosition(140,0);
-    waterButton.setType('w');
+    waterButton.setType(water);
 
     Button oilButton;
     oilButton.setPosition(160,0);
-    oilButton.setType('o');
+    oilButton.setType(oil);
 
     Button fireButton;
     fireButton.setPosition(180,0);
-    fireButton.setType('f');
+    fireButton.setType(fire);
 
     Button smokeButton;
     smokeButton.setPosition(200, 0);
-    smokeButton.setType('d');
+    smokeButton.setType(smoke);
 
+    Button woodButton;
+    woodButton.setPosition(220, 0);
+    woodButton.setType(wood);
 
     buttons_v.push_back(sandButton);
     buttons_v.push_back(rockButton);
@@ -100,6 +114,7 @@ void makeOptionButtons(sf::RenderWindow& window, std::vector<Button>& buttons_v)
     buttons_v.push_back(oilButton);
     buttons_v.push_back(fireButton);
     buttons_v.push_back(smokeButton);
+    buttons_v.push_back(woodButton);
 }
 
 void checkButtonsState(std::vector<Button>& buttons_v, sf::RenderWindow& window)
@@ -122,7 +137,7 @@ void checkButtonsState(std::vector<Button>& buttons_v, sf::RenderWindow& window)
 //here we re just adding particles, the particles have different positions, the vector doesnt order them by their position
 void checkLeftClicks(sf::RenderWindow& window)
 {
-    enum particles_enum {SAND, ROCK, WATER, OIL, FIRE, SMOKE};
+    enum particles_enum {SAND, ROCK, WATER, OIL, FIRE, SMOKE, WOOD};
 
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
@@ -138,8 +153,8 @@ void checkLeftClicks(sf::RenderWindow& window)
         case SAND:
         {
             for (int i = 0; i < 10; ++i) {
-                world.setParticle('s', clickPosi.x + addX, clickPosi.y +addY);
-                //world.setFlag('n', clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
+                world.setParticle(sand, clickPosi.x + addX, clickPosi.y +addY);
+                //world.setFlag(n, clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
 
                  addX++;
                 //addY++;
@@ -153,15 +168,15 @@ void checkLeftClicks(sf::RenderWindow& window)
         {
             for (int i = 0; i < 10 ; ++i) {
                 for (int y = 0; y < 10; ++y) {
-                    world.setParticle('r', clickPosi.x + i, clickPosi.y +y);
+                    world.setParticle(rock, clickPosi.x + i, clickPosi.y +y);
                 }
             }
         }
         break;
         case OIL:
         {
-            for (int i = 0; i < 10  ; ++i) {
-                world.setParticle('o', clickPosi.x + addX, clickPosi.y +addY);
+            for (int i = 0; i < 50  ; ++i) {
+                world.setParticle(oil, clickPosi.x + addX, clickPosi.y +addY);
                 addX++;
             }
         }
@@ -169,7 +184,7 @@ void checkLeftClicks(sf::RenderWindow& window)
         case FIRE:
         {
             for (int i = 0; i < 20 ; ++i) {
-                world.setParticle('f', clickPosi.x + addX, clickPosi.y +addY);
+                world.setParticle(fire, clickPosi.x + addX, clickPosi.y +addY);
                 addX++;
             }
         }
@@ -177,8 +192,8 @@ void checkLeftClicks(sf::RenderWindow& window)
         case WATER:
         {
             for (int i = 0; i < 100 ; ++i) {
-                world.setParticle('w', clickPosi.x + addX, clickPosi.y +addY);
-                world.setFlag('f', clickPosi.x + addX, clickPosi.y +addY);
+                world.setParticle(water, clickPosi.x + addX, clickPosi.y +addY);
+                world.setFlag(f, clickPosi.x + addX, clickPosi.y +addY);
                 //addX++;
                 addY++;
                 //number++;
@@ -188,8 +203,17 @@ void checkLeftClicks(sf::RenderWindow& window)
         case SMOKE:
         {
             for (int i = 0; i < 10 ; ++i) {
-                world.setParticle('d', clickPosi.x + addX, clickPosi.y +addY);
+                world.setParticle(smoke, clickPosi.x + addX, clickPosi.y +addY);
                 addX++;
+            }
+        }
+        break;
+        case WOOD:
+        {
+            for (int i = 0; i < 20 ; ++i) {
+                for (int y = 0; y < 20; ++y) {
+                    world.setParticle(wood, clickPosi.x + i, clickPosi.y +y);
+                }
             }
         }
         break;
@@ -201,128 +225,140 @@ void checkLeftClicks(sf::RenderWindow& window)
 
 
 
-void updateUpLeft(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) //its for normal particles, gases should be rervesed
+void updateUpLeft(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireClass, Smoke& smokeClass, Wood& woodClass) //its for normal particles, gases should be rervesed
 {
     for (int y = Hight-1; y >= 0+buttonYsize ; --y) { //0+buttonYsize so we avoid interacting with type buttons
         for (int x = Width-1; x >= 0 ; --x) { // the 15 prevents moviing to the other end of the window
 
-            if(world.getFlag(x,y) == 'f') continue;
+            if(world.getFlag(x,y) == f) continue;
             char currentC   = world.getParticleType(x,y);
-            if(currentC == 'n' || currentC == 'r') continue;
+            if(currentC == air || currentC == rock) continue;
 
-            if(currentC == 's')  //SAND
-                if(sand.moveSandinAir(x, y)==false)        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                    sand.moveSandInOil(x,y);        //only if sand in air was NOT moved, check if there is possibility to move sand in water
+            if(currentC == sand)
+                if(sandClass.moveSandinAir(x, y)== false)
+                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
+                        if(sandClass.moveSandInOil(x, y)== false);
 
-            if(currentC == 'w') //WATER
-                water.moveWater(x, y);
 
-            if(currentC == 'o') //Oil
-                if(oil.moveOilinAir(x,y) == false)
-                    oil.moveOilinWater(x,y);
+            if(currentC == water) //WATER
+                waterClass.moveWater(x, y);
 
-            if(currentC == 'f') //Fire
-                 fire.moveFire(x, y) ;
-                   // fire.interactWithWater(x, y);
+            if(currentC == oil) //Oil
+                oilClass.moveOil(x,y);
 
-            if(currentC == 'd' || currentC == 'e') //Smoke
-                smoke.moveSmokeinAir(x,y);
+            if(currentC == fire) //Fire
+                fireClass.moveFire(x, y);
+
+            if(currentC == smoke ) //Smoke
+                smokeClass.moveSmoke(x,y);
+
+            if(currentC == wood)
+                woodClass.moveWood(x,y);
         }//end for
     }
 }
 
-void updateUpRight(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) //its for normal particles, gases should be rervesed
+void updateUpRight(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireClass, Smoke& smokeClass, Wood& woodClass) //its for normal particles, gases should be rervesed
 {
 
 
     for (int y = Hight-1; y <= 0+buttonYsize ; --y) {
         for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
 
-            if(world.getFlag(x,y) == 'f') continue;
+            if(world.getFlag(x,y) == f) continue;
             char currentC   = world.getParticleType(x,y);
-            if(currentC == 'n' || currentC == 'r') continue;
+            if(currentC == air || currentC == rock) continue;
 
-            if(currentC == 's')  //SAND
-                if(sand.moveSandinAir(x, y)==false)        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                    sand.moveSandInOil(x,y);       //only if sand in air was NOT moved, check if there is possibility to move sand in water
+            if(currentC == sand)
+                if(sandClass.moveSandinAir(x, y)== false)
+                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
+                        if(sandClass.moveSandInOil(x, y)== false);
 
-            if(currentC == 'w') //WATER
-                water.moveWater(x, y);
+            if(currentC == water) //WATER
+                waterClass.moveWater(x, y);
 
-            if(currentC == 'o') //OIL
-                if(oil.moveOilinAir(x,y) == false)
-                    oil.moveOilinWater(x,y);
+            if(currentC == oil) //Oil
+                oilClass.moveOil(x,y);
 
-            if(currentC == 'f') //Fire
-                fire.moveFire(x, y);
-//                    fire.interactWithWater(x, y);
+            if(currentC == fire) //Fire
+                fireClass.moveFire(x, y);
 
-            if(currentC == 'd' || currentC == 'e') //Smoke
-                smoke.moveSmokeinAir(x,y);
+
+            if(currentC == smoke) //Smoke
+                smokeClass.moveSmoke(x,y);
+
+            if(currentC == wood)
+                woodClass.moveWood(x,y);
         }//end for
     }
 }
 
 
 
-void updateLeft(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) //its for normal particles, gases should be rervesed
+void updateLeft(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireClass, Smoke& smokeClass, Wood& woodClass) //its for normal particles, gases should be rervesed
 {
     for (int y = 0+buttonYsize; y < Hight-1 ; ++y) { //0+vel so to avoid interacting with type buttons
         for (int x = Width-1; x >= 0 ; --x) { // the 15 prevents moviing to the other end of the window
 
-            if(world.getFlag(x,y) == 'f') continue;
+            if(world.getFlag(x,y) == f) continue;
             char currentC   = world.getParticleType(x,y);
-            if(currentC == 'n' || currentC == 'r') continue;
+            if(currentC == air || currentC == rock) continue;
 
-            if(currentC == 's')  //SAND
-                if(sand.moveSandinAir(x, y)==false)        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                    sand.moveSandInOil(x,y);       //only if sand in air was NOT moved, check if there is possibility to move sand in water
+            if(currentC == sand)
+                if(sandClass.moveSandinAir(x, y)== false)
+                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
+                        if(sandClass.moveSandInOil(x, y)== false);
 
-            if(currentC == 'w') //WATER
-                water.moveWater(x, y);
+            if(currentC == water) //WATER
+                waterClass.moveWater(x, y);
 
-            if(currentC == 'o') //OIL
-                if(oil.moveOilinAir(x,y) == false)
-                    oil.moveOilinWater(x,y);
+            if(currentC == oil) //Oil
+                oilClass.moveOil(x,y);
 
-            if(currentC == 'f') //Fire
-                fire.moveFire(x, y);
-            //                    fire.interactWithWater(x, y);
+            if(currentC == fire) //Fire
+                fireClass.moveFire(x, y);
 
-            if(currentC == 'd' || currentC == 'e') //Smoke
-                smoke.moveSmokeinAir(x,y);
+
+            if(currentC == smoke) //Smoke
+                smokeClass.moveSmoke(x,y);
+
+            if(currentC == wood)
+                woodClass.moveWood(x,y);
         }//end for
     }
 }
 
-void updateRight(Sand& sand, Water& water, Oil& oil, Fire& fire, Smoke& smoke) //its for normal particles, gases should be rervesed
+void updateRight(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireClass, Smoke& smokeClass, Wood& woodClass) //its for normal particles, gases should be rervesed
 {
 
 
     for (int y = 0+buttonYsize; y < Hight-1 ; ++y) {
         for (int x = 0; x < Width ; ++x) { // the 15 prevents moviing to the other end of the window
 
-            if(world.getFlag(x,y) == 'f') continue;
+            if(world.getFlag(x,y) == f) continue;
             char currentC   = world.getParticleType(x,y);
-            if(currentC == 'n' || currentC == 'r') continue;
+            if(currentC == air || currentC == rock) continue;
 
-            if(currentC == 's')  //SAND
-                if(sand.moveSandinAir(x, y)==false)        //only if sand in air was NOT moved, check if there is possibility to move sand in water
-                    sand.moveSandInOil(x,y);
+            if(currentC == sand)
+                if(sandClass.moveSandinAir(x, y)== false)
+                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
+                        if(sandClass.moveSandInOil(x, y)== false);
 
-            if(currentC == 'w') //WATER
-                water.moveWater(x, y);
+            if(currentC == water) //WATER
+                waterClass.moveWater(x, y);
 
-            if(currentC == 'o') //OIL
-                if(oil.moveOilinAir(x,y) == false)
-                    oil.moveOilinWater(x,y);
+            if(currentC == oil) //Oil
+                oilClass.moveOil(x,y);
 
-            if(currentC == 'f') //Fire
-                fire.moveFire(x, y);
-            //                    fire.interactWithWater(x, y);
+            if(currentC == fire) //Fire
+                fireClass.moveFire(x, y);
 
-            if(currentC == 'd' || currentC == 'e') //Smoke
-                smoke.moveSmokeinAir(x,y);
+
+            if(currentC == smoke) //Smoke
+                smokeClass.moveSmoke(x,y);
+
+            if(currentC == wood)
+                woodClass.moveWood(x,y);
         }//end for
     }
 }
@@ -340,18 +376,19 @@ int main()
     matrix.reserve(size);
     for (int i = 0; i < size; ++i) {
         Particle* p = new Particle;
-        //p->setFlag('n');
+        //p->setFlag(n);
 
         matrix.push_back(p);
     }
     std::cout << "matrix in main: " << matrix.size() << std::endl;
     world.passMatrix(matrix);
 
-    Sand sand(world);
-    Water water(world);
-    Oil oil(world);
-    Fire fire(world);
-    Smoke smoke(world);
+    Sand sandClass(world);
+    Water waterClass(world);
+    Oil oilClass(world);
+    Fire fireClass(world);
+    Smoke smokeClass(world);
+    Wood woodClass(world);
 
     std::vector<Button> buttons_v;
     makeOptionButtons(window, buttons_v);
@@ -364,16 +401,16 @@ int main()
     //make sand bottom
     for (int y = Hight-vel; y < Hight    ; ++y) {
         for (int x = 0; x < Width  ; ++x) {
-            world.setParticle('s', x, y);
-            world.setFlag('f', x, y);
+            world.setParticle(sand, x, y);
+            world.setFlag(f, x, y);
         }
     }
 
     //make water bed
     for (int y = Hight-vel-30; y < Hight-vel    ; ++y) {
         for (int x = 0; x < Width  ; ++x) {
-            world.setParticle('w', x, y);
-            world.setFlag('f', x, y);
+            world.setParticle(water, x, y);
+            world.setFlag(f, x, y);
         }
     }
 
@@ -394,7 +431,7 @@ int main()
         }
 
         window.clear();
-        window.draw(s); //background
+        //window.draw(s); //background
 
         checkLeftClicks(window);
 
@@ -403,7 +440,7 @@ int main()
         //Draw:
         for (int y = 0; y < Hight ; ++y) { // Hight -vel would cause we would see bottom sand but it would still be there
             for (int x = 0+vel; x < Width-vel ; ++x) { // +vel and -vel prevents sand sitting on the edges, cause now we DONT DISPLAY edges lol
-                if(world.getParticleType(x,y) == 's' || world.getParticleType(x,y) == 'y'){
+                if(world.getParticleType(x,y) == sand ){
 
                     if(std::rand()%2 == 1)
                         v.color = sf::Color(255, 127, 39);
@@ -413,14 +450,14 @@ int main()
                     v.position.y = y;
                     va.append(v);
                 }
-                else if(world.getParticleType(x,y) == 'r')
+                else if(world.getParticleType(x,y) == rock)
                 {
                     v.color = sf::Color::Magenta;
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);
                 }
-                else if(world.getParticleType(x,y) == 'w')
+                else if(world.getParticleType(x,y) == water)
                 {
 //                    if(std::rand()%2 == 1)
 //                        v.color = sf::Color(34, 97, 149);
@@ -430,27 +467,30 @@ int main()
                     v.position.y = y;
                     va.append(v);
                 }
-                else if(world.getParticleType(x,y) == 'o')
+                else if(world.getParticleType(x,y) == oil)
                 {
                     v.color = sf::Color(136,0,21);
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);
                  }
-                else if(world.getParticleType(x,y) == 'f')
+                else if(world.getParticleType(x,y) == fire)
                 {
-                    int r = std::rand()%3;
-                    if(r == 1)
-                        v.color = sf::Color::Red;
+                    int r = std::rand()%4;
+                    if(r == 0)
+                        v.color = sf::Color(244, 28, 36);
+                    else if(r == 1)
+                        v.color = sf::Color(255, 0, 5);
                     else if(r == 2)
-                        v.color = sf::Color(255, 127, 39);
+                        v.color = sf::Color(255, 122, 5);
                     else if(r == 3)
-                        v.color = sf::Color(255, 255, 0);
+                        v.color = sf::Color(255, 3, 50);
+
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);
                 }
-                 else if(world.getParticleType(x,y) == 'd') //smoke
+                 else if(world.getParticleType(x,y) == smoke) //smoke
                  {
                     int r = std::rand()%2;
                     if(r == 1)
@@ -462,48 +502,41 @@ int main()
                      v.position.y = y;
                      va.append(v);
                  }
-                else if(world.getParticleType(x,y) == 'e') //smoke
+                else if(world.getParticleType(x,y) == wood)
                 {
-                    int r = std::rand()%2;
-                    if(r == 1)
-                        v.color = sf::Color::Black;
-                    else
-                        v.color = sf::Color(160,104,104);
-
+                    v.color = sf::Color(124, 78, 52);
                     v.position.x = x;
                     v.position.y = y;
                     va.append(v);
                 }
+
             }
         }
 
 
 
         if(switcher==0){
-            updateLeft(sand, water,oil, fire, smoke);
+            updateLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
             switcher=1;
         }
         else if(switcher==1)
         {
-            updateUpLeft(sand, water, oil, fire, smoke);
+            updateUpLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
             switcher =2;
         }
         else if(switcher==2)
         {
-            updateRight(sand, water, oil, fire, smoke);
+            updateRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
             switcher =3;
         }
         else if(switcher==3)
         {
-            updateUpRight(sand, water, oil, fire, smoke);
+            updateUpRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
             switcher =0;
         }
 
         window.draw(va);
         va.clear();
-
-
-
 
 
         //these need to be below update and draw so i cant write on buttons

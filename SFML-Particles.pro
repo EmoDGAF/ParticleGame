@@ -12,6 +12,7 @@ SOURCES += \
         sand.cpp \
         smoke.cpp \
         water.cpp \
+        wood.cpp \
         world.cpp
 
 QMAKE_CXXFLAGS += -O3 -finline-small-functions -momit-leaf-frame-pointer -pthread
@@ -48,6 +49,7 @@ HEADERS += \
     sand.h \
     smoke.h \
     water.h \
+    wood.h \
     world.h
 
 

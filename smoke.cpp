@@ -7,26 +7,24 @@ Smoke::Smoke(World& world_)
     velSandInAir = 10;
     vel = velSandInAir ; // sand speed
     velSandInWater =2;
-
 }
 
 
+/*if fire moves through smoke, and smoke moves through fire, both are are neutral to each other*/
 int Smoke::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
 {
+    particleTypeToMove = '0';
     int i;
     char lookUpPrt;
 
-
     for (i = 1; i < vel; ++i)
     {
-
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
-        //char flag = world.getFlag(x+dir_x*i, y+dir_y*i);
-        if(lookUpPrt == air ){ particleTypeToMove = air;  vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
-        if(lookUpPrt == water ){ particleTypeToMove = water; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
-        if(lookUpPrt == oil ){ particleTypeToMove = oil; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8;
+        lookUpFlag = world.getFlag(x+dir_x*i, y+dir_y*i);
 
-        else if(lookUpPrt == sand || lookUpPrt == rock  || lookUpPrt == smoke )
+        if(lookUpPrt == air && lookUpFlag!= 'f'){ particleTypeToMove = air;  vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
+        //else if(lookUpPrt == fire ){ particleTypeToMove = fire; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8; | smoke can move through fire, cause otherwise, if smoke stops on fire, smoke pumps fire up
+        else if( lookUpPrt == sand || lookUpPrt == rock  || lookUpPrt == smoke || lookUpPrt == wood || lookUpPrt == oil || lookUpPrt == water   )
         {
             return i-1;
         }
@@ -41,7 +39,7 @@ int Smoke::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, i
 
 
 
-bool Smoke::moveSmokeinAir(int& x, int& y)
+void Smoke::moveSmoke(int& x, int& y)
 {
     //vel = vel + std::rand()% 140 - vel ; //changing velocity prevents pumping particles up
     //lifetime:
@@ -51,81 +49,48 @@ bool Smoke::moveSmokeinAir(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, vel) ;
     if(moveBy> 0)
     {
-        updateUp(x, y, moveBy, particleTypeToMove, smoke);
-        return 1;
+        if(particleTypeToMove ==air){
+            updateUp(x, y, moveBy, air, smoke);
+            return;
+        }
     }
     /*down sides*/
-
 
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, -1, vel);
     if(moveBy> 0)
     {
-        updateUpLeft(x, y, moveBy, particleTypeToMove, smoke);
-        return 1;
+        if(particleTypeToMove ==air){
+            updateUpLeft(x, y, moveBy, air, smoke);
+            return;
+        }
     }
 
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, vel) ;
     if(moveBy> 0)
     {
-        updateLeft(x, y, moveBy, particleTypeToMove, smoke);
-        return 1;
+        if(particleTypeToMove ==air){
+            updateLeft(x, y, moveBy, air, smoke);
+            return;
+        }
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, vel) ;
     if(moveBy> 0)
     {
-        updateRight(x, y, moveBy, particleTypeToMove, smoke);
-        return 1;
+        if(particleTypeToMove ==air){
+            updateRight(x, y, moveBy, air, smoke);
+            return;
+        }
     }
-
-
-
-    return 0;
 }
 
 
-
-bool Smoke::moveSmokeInOil(int &x, int &y)
-{
-    //lifetime:
-    if(world.getParticle(x,y)->decreaseSmokeLifetime())
-        world.setParticle('n',x,y);
-    //    int moveBy=0;
-
-    //    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, velSandInWater);
-    //    if(moveBy!= 0)
-    //    {
-    //        updateDown(x, y, moveBy, particleTypeToMove, sand);
-    //        return 1;
-    //    }
-
-    //    /*down sides*/
-
-    //        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, velSandInWater);
-    //        if(moveBy!= 0)
-    //        {
-    //            updateDownLeft(x, y, moveBy, particleTypeToMove, sand);
-    //            return 1;
-    //        }
-
-    //        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, velSandInWater);
-    //        if(moveBy!= 0)
-    //        {
-    //            updateDownRight(x, y, moveBy, particleTypeToMove, sand);
-    //            return 1;
-    //        }
-
-
-    return 0;
-}
 
 //jiggering of the solid elements is caused by flag n
 void Smoke::updateUpLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    if(world.getFlag( x-move_by , y-move_by )=='f')
-        return;
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x-move_by , y-move_by );
     world.setFlag('f', x-move_by , y-move_by );
@@ -136,8 +101,6 @@ void Smoke::updateUpLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char
 
 void Smoke::updateUpRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    if(world.getFlag( x+move_by, y-move_by)=='f') //can check cause sand goes through water
-        return;
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x+move_by, y-move_by);
     world.setFlag('f', x+move_by, y-move_by);
@@ -149,9 +112,6 @@ void Smoke::updateUpRight(int&  x, int&  y, int&  move_by, char& currentPrt, cha
 
 void Smoke::updateUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-
-    if(world.getFlag( x, y-moveBy)=='f')
-        return;
     world.setParticle(currentPrt, x, y );
     world.setParticle(nextPrt, x, y-move_by);
     world.setFlag('f', x, y );
@@ -161,8 +121,6 @@ void Smoke::updateUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& ne
 
 void Smoke::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    if(world.getFlag( x-move_by , y)=='f')
-        return;
     world.setParticle(nextPrt, x-move_by , y);
     world.setParticle(currentPrt, x, y );
     world.setFlag('f', x, y );
@@ -173,8 +131,6 @@ void Smoke::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& 
 
 void Smoke::updateRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
-    if(world.getFlag( x+move_by , y)=='f')  //cant check cause water cant spread properly
-        return;
     world.setParticle(nextPrt, x+move_by , y);
     world.setParticle(currentPrt, x, y );
     world.setFlag('f', x, y );

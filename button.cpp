@@ -43,6 +43,8 @@ void Button::setType(char t)
         this->setFillColor(sf::Color::Red);
     else if(type=='d')
         this->setFillColor(sf::Color::Black);
+    else if(type == 'v')
+        this->setFillColor(sf::Color(124, 78, 52));
 }
 
 char Button::getType() const

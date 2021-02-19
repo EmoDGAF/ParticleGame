@@ -3,11 +3,10 @@
 Particle::Particle()
 {
      type = 'n';
-//   flag = 'n';
      x = 0;
      y = 0;
      fireLifetime =20;
-     smokeLifetime =130;
+     smokeLifetime =1000;
 }
 
 void Particle::settype(char t)
