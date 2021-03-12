@@ -13,30 +13,29 @@ Smoke::Smoke(World& world_)
 /*if fire moves through smoke, and smoke moves through fire, both are are neutral to each other*/
 int Smoke::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
 {
-    particleTypeToMove = '0';
     int i;
-    char lookUpPrt;
+    particleTypeToMove = '0'; //reset is needed not to preserve the previous state
 
-    for (i = 1; i < vel; ++i)
+    for (i = 1; i <= vel; ++i)
     {
+        if(x+i-1>= Width || x-i-1<=  0 || y+i-1 >=Hight || y-i-1 <= 0) //so water doesnt move through edges on the other side
+            return 0;
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         lookUpFlag = world.getFlag(x+dir_x*i, y+dir_y*i);
 
-        if(lookUpPrt == air && lookUpFlag!= 'f'){ particleTypeToMove = air;  vel = 5 + std::rand()%15; } //vel = 5 + std::rand()%15;
-        //else if(lookUpPrt == fire ){ particleTypeToMove = fire; vel = 1 + velSandInWater; } //vel = 1 + std::rand()%8; | smoke can move through fire, cause otherwise, if smoke stops on fire, smoke pumps fire up
-        else if( lookUpPrt == sand || lookUpPrt == rock  || lookUpPrt == smoke || lookUpPrt == wood || lookUpPrt == oil || lookUpPrt == water   )
-        {
+
+        if(lookUpPrt != sand && lookUpPrt != rock  && lookUpPrt != wood && lookUpPrt != oil  && lookUpFlag != 'f'){ /*go to next iteration of for loop*/ }
+        else{
+            lookUpPrt = world.getParticleType(x+dir_x*(i-1), y+dir_y*(i-1));
+            particleTypeToMove = lookUpPrt;
             return i-1;
         }
     }
 
-
-//    if(x+i-1>= Width || x-i-1<= 40 || y+i-1 >=Hight || y-i-1 <=40)
-//        return 0;
-
+    particleTypeToMove = lookUpPrt;
+    //setSandVelocitytoType(particleTypeToMove, vel);
     return i-1;
 }
-
 
 
 void Smoke::moveSmoke(int& x, int& y)
@@ -49,10 +48,10 @@ void Smoke::moveSmoke(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, vel) ;
     if(moveBy> 0)
     {
-        if(particleTypeToMove ==air){
-            updateUp(x, y, moveBy, air, smoke);
+//no need to check if it encounters air, as all other types are removed as non interactive
+            updateUp(x, y, moveBy, particleTypeToMove, smoke);
             return;
-        }
+
     }
     /*down sides*/
 
@@ -60,29 +59,29 @@ void Smoke::moveSmoke(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, -1, vel);
     if(moveBy> 0)
     {
-        if(particleTypeToMove ==air){
-            updateUpLeft(x, y, moveBy, air, smoke);
+
+            updateUpLeft(x, y, moveBy, particleTypeToMove, smoke);
             return;
-        }
+
     }
 
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, vel) ;
     if(moveBy> 0)
     {
-        if(particleTypeToMove ==air){
-            updateLeft(x, y, moveBy, air, smoke);
+
+            updateLeft(x, y, moveBy, particleTypeToMove, smoke);
             return;
-        }
+
     }
 
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, vel) ;
     if(moveBy> 0)
     {
-        if(particleTypeToMove ==air){
-            updateRight(x, y, moveBy, air, smoke);
+
+            updateRight(x, y, moveBy, particleTypeToMove, smoke);
             return;
-        }
+
     }
 }
 

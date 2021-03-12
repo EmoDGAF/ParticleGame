@@ -7,13 +7,12 @@ class Sand
 {
 public:
     Sand(World &world_);
-    bool moveSandinAir(int &x, int &y);
-    bool moveSandInWater(int &x, int &y);
-    bool moveSandInOil(int &x, int &y);
+    void moveSand(int &x, int &y);
+
 private:
     //jiggering of the solid elements is caused by flag n
 
-    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel );
+    int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int &vel );
 
     void updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 
@@ -21,11 +20,16 @@ private:
 
     void updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
 
+    void updateLeft(int&  x, int&  y, int move_by, char& currentPrt, char& nextPrt);
 
-    void moveWaterAsideWhenMovesUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+    void updateRight(int&  x, int&  y, int move_by, char& currentPrt, char& nextPrt);
+
+private:
+    void setSandVelocitytoType(char& particleTypeToMove, int &vel);
+    bool disperseGrains(int& x, int& y);
 private:
     World world;
-
+    int vel;
     int velSandInWater ;
     int velSandInAir ;
     int velSandInOil ;
@@ -33,7 +37,7 @@ private:
     char lookUpFlag;
     int moveBy;
     char particleTypeToMove;
-
+    int moveSandAsideIndex;
     char fire = 'f';
     char oil = 'o';
     char water = 'w';

@@ -3,7 +3,7 @@
 Fire::Fire(World &world_)
 {
     world = world_;
-    vel =15;
+    vel =7;
     velWoodOnFire =0.1;
     spreadFireVel = 1; //because if "else if(particleTypeToMove == oil) spreadFire(x,y);" - so cant move by more than 1 cause it would bo beyond oil in the direction, where oil is
     velUpFire= 30;
@@ -43,25 +43,27 @@ void Fire::spreadFire(int& x, int& y)
 float Fire::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel, bool is_rand = true)
 {
     particleTypeToMove = '0';
-    if(is_rand) vel = 4 + std::rand()%8; //dont use random when fireSpreads
+    vel = 4 + std::rand()%8; //dont use random when fireSpreads
     int i;
     char lookUpPrt;
     for (i = 1; i <= vel; ++i)
     {
+        if(x+i-1>= Width || x-i-1<=  0 || y+i-1 >=Hight || y-i-1 <= 0) //so water doesnt move through edges on the other side
+            return 0;
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         lookUpFlag = world.getFlag(x+dir_x*i, y+dir_y*i);
-        if(lookUpPrt == air        && lookUpFlag!= 'f'){ particleTypeToMove = air; }
-        else if(lookUpPrt == oil   && lookUpFlag!= 'f'){ particleTypeToMove = oil; }
-        else if(lookUpPrt == water && lookUpFlag!= 'f'){ particleTypeToMove = water; }
-        else if(lookUpPrt == wood  && lookUpFlag!= 'f'){ particleTypeToMove = wood; }
-        else if(lookUpPrt == smoke && lookUpFlag!= 'f'){ particleTypeToMove =smoke; } //without it smoke puts off fire when moving up wood | fire should be able to move through smoke, cause when falling down, fire would act as if it hit on rock - so smoke must be penetrable
-        /*non burnable: */
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == fire ) //without lookUpPrt == fire (fire is the current particle), fire would disappear when falling down
-        {
+
+
+        if(lookUpPrt != sand && lookUpPrt != rock && lookUpPrt != fire && lookUpPrt != smoke && lookUpFlag != 'f'){ /*go to next iteration of for loop*/ }
+        else{
+            lookUpPrt = world.getParticleType(x+dir_x*(i-1), y+dir_y*(i-1));
+            particleTypeToMove = lookUpPrt;
             return i-1;
         }
     }
 
+    particleTypeToMove = lookUpPrt;
+    //setSandVelocitytoType(particleTypeToMove, vel);
     return i-1;
 }
 
@@ -97,8 +99,8 @@ void Fire::moveFire(int& x, int& y)
             return;
         }
         else if(particleTypeToMove == smoke){
-//            updateUp(x,y,moveBy,smoke, fire);
-//            return;
+            //            updateUp(x,y,moveBy,smoke, fire);
+            //            return;
         }
     }
 
@@ -115,9 +117,9 @@ void Fire::moveFire(int& x, int& y)
             return;
         }
         else if(particleTypeToMove == oil){ //fire interacts with oil
-             updateDownLeft(x,y,moveBy,smoke, fire); //add smoke
-             spreadFire(x,y);
-             return;
+            updateDownLeft(x,y,moveBy,smoke, fire); //add smoke
+            spreadFire(x,y);
+            return;
         }
         else if(particleTypeToMove == wood){ //fire interacts with oil
             updateDownLeft(x,y,moveBy,smoke, fire);
@@ -213,12 +215,12 @@ void Fire::moveFire(int& x, int& y)
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, 10); //move fire up so when oil drops on it it burns
     if(moveBy!= 0)
     {
-       if(particleTypeToMove == wood){  //fire interacts with oil
+        if(particleTypeToMove == wood){  //fire interacts with oil
             updateUp(x,y,moveBy,smoke, fire);
             spreadFire(x,y);
             return;
         }
-       else if(particleTypeToMove == water){
+        else if(particleTypeToMove == water){
             //fire interacts with water
             updateUp(x,y,moveBy,smoke, smoke);
             return;
@@ -228,10 +230,10 @@ void Fire::moveFire(int& x, int& y)
             spreadFire(x,y);
             return;
         }
-//        else if(particleTypeToMove == smoke){
-//            updateUp(x,y,moveBy,fire, smoke);
-//            return;
-//        }
+        //        else if(particleTypeToMove == smoke){
+        //            updateUp(x,y,moveBy,fire, smoke);
+        //            return;
+        //        }
 
     }
 

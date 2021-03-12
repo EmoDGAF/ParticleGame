@@ -3,17 +3,51 @@
 Water::Water(World &world_)
 {
     world = world_;
-    vel =15;
+    vel =25;
+    velSides = 35;
+    number4 =0;
 }
 
-//the problem with water coming as a high wave making oil disappear was: coming from above water first encounters air, then oil, - but in my function, oil moves on untill it encounter SOLID elements like rock, wood, so on, but it should move on untill reaches different KIND of particle, even non solid like oil
+/*basicly, to achieve fast water movement easilly, i need to make the water move in certain direction left/right, cause when each frame the direction changes, water movements null each other */
 
-int Water::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel )
+void Water::setSandVelocitytoType(char& particleTypeToMove, int& vel)
 {
-    particleTypeToMove = '0'; // reset particleTypeToMove so it wont preserve its state and cause water appearance in next iteration
-    vel = 10 + std::rand()%20;
+    //for these to modify the values of vel, the function must pass vel by reference to checkHowFarIsObstacleInGivenDir:
+    if(particleTypeToMove==air)vel = 15 + std::rand()%35;
+    if(particleTypeToMove==water || particleTypeToMove==smoke)vel = 35  + std::rand()%25;
+    else if(particleTypeToMove==oil)vel = 1  ;
+    else vel = 10 + std::rand()%15;
+}
+
+bool Water::disperseWater(int &x, int &y)
+{
+    int r = std::rand()%4;
+    if(r==3){
+        int velDisp =25;
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, velDisp);
+        if(moveBy> 0)
+        {
+            updateLeft(x, y, moveBy, particleTypeToMove, water);
+            return true;
+        }
+    }else if(r ==2){
+        int velDisp =25;
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, velDisp);
+        if(moveBy> 0)
+        {
+            updateRight(x, y, moveBy, particleTypeToMove, water);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int Water::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int& vel )
+{
     int i;
-    char firstEncounteredTypeOnPath = '0';
+    particleTypeToMove = '0'; //reset is needed not to preserve the previous state
+
     for (i = 1; i <= vel; ++i)
     {
         if(x+i-1>= Width || x-i-1<=  0 || y+i-1 >=Hight || y-i-1 <= 0) //so water doesnt move through edges on the other side
@@ -21,177 +55,86 @@ int Water::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, i
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         lookUpFlag = world.getFlag(x+dir_x*i, y+dir_y*i);
 
-        if(lookUpPrt == air        && lookUpFlag!= 'f'){
-            particleTypeToMove = air;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        else if(lookUpPrt == oil && dir_y == -1 && lookUpFlag!= 'f' ){
-            particleTypeToMove = water;
-            return i -1; //*  impenetrable substance for water moving up
-        }
-        else if(lookUpPrt == oil   && lookUpFlag!= 'f'){
-            particleTypeToMove = oil;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        else if(lookUpPrt == smoke && lookUpFlag!= 'f'){
-            particleTypeToMove = smoke;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        else if(lookUpPrt == fire  && lookUpFlag!= 'f'){
-            particleTypeToMove = fire;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        else if(lookUpPrt == sand || lookUpPrt == rock || lookUpPrt == water || lookUpPrt == wood)
-        {
+
+        if(lookUpPrt != sand && lookUpPrt != rock && lookUpPrt != wood && lookUpPrt != smoke && lookUpPrt!= water && lookUpFlag != 'f'){ /*go to next iteration of for loop*/ }
+        else{
+            lookUpPrt = world.getParticleType(x+dir_x*(i-1), y+dir_y*(i-1));
+            particleTypeToMove = lookUpPrt;
+            //if(i-1>0) std::cout << i-1 << "\n";
             return i-1;
         }
     }
+
+    particleTypeToMove = lookUpPrt;
+    setSandVelocitytoType(particleTypeToMove, vel);
+    // if(i-1>0) std::cout << i-1 << "\n";
     return i-1;
 }
 
+
+
 void Water::moveWater(int& x, int& y)
 {
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, 15); //UP
+    number4++;
+    if(disperseWater(x, y)) return;
+    //=========
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, vel); //DOWN
     if(moveBy!= 0)
     {
-        //if(particleTypeToMove == air){
-            //updateDown(x, y, moveBy, air, water);
-            //return;
-        //}
-//        if(particleTypeToMove == oil){
-//            updateUp(x, y, moveBy, oil, water);
-//            return;
-//        }
-        //else if(particleTypeToMove == smoke){
-            //updateDown(x, y, moveBy, smoke, water);
-            //return;
-        //}else
-//          if(particleTypeToMove == fire){
-//            updateUp(x, y, moveBy, smoke, smoke);
-//            return;
-//        }
+        updateDown(x, y, moveBy, particleTypeToMove, water);
+        return;
     }
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, 15); //DOWN
+    //randomizing left /right prevents dragging big amount of water to right or left - but this way water levels SLOWER
+   if((number4&1)==0 ){
+       moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, velSides); //Downleft
+       if(moveBy!= 0)
+       {
+
+           updateDownLeft(x, y, moveBy, particleTypeToMove, water);
+           return;
+       }
+   }else{
+
+       moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, velSides);
+       if(moveBy!= 0)
+       {
+
+           updateDownRight(x, y, moveBy, particleTypeToMove, water);
+           return;
+
+       }
+     }
+
+
+
+
+
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, velSides);
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateDown(x, y, moveBy, air, water);
-            return;
-        }
-        else if(particleTypeToMove ==oil){
-            updateDown(x, y, moveBy, oil, water);
-            return;
-        }
-        else if(particleTypeToMove ==smoke){
-            updateDown(x, y, moveBy, smoke, water);
-            return;
-        }
-//        else if(particleTypeToMove ==fire){
-//            updateDown(x, y, moveBy, smoke, smoke);
-//            return;
-//        }
+        updateLeft(x, y, moveBy, particleTypeToMove, water);
+        return;
     }
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, 15); //Downleft
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, velSides);
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateDownLeft(x, y, moveBy, air, water);
-            return;
-        }
-//        else if(particleTypeToMove ==oil){
-//            updateDownLeft(x, y, moveBy, oil, water);
-//            return;
-//        }
-        else if(particleTypeToMove ==smoke){
-            updateDownLeft(x, y, moveBy, smoke, water);
-            return;
-        }
-//        else if(particleTypeToMove ==fire){
-//            updateDownLeft(x, y, moveBy, smoke, smoke);
-//            return;
-//        }
-
-    }
-
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, 15);
-    if(moveBy!= 0)
-    {
-        if(particleTypeToMove ==air){
-            updateDownRight(x, y, moveBy, air, water);
-            return;
-        }
-//        else if(particleTypeToMove ==oil){
-//            updateDownRight(x, y, moveBy, oil, water);
-//            return;
-//        }
-        else if(particleTypeToMove ==smoke){
-            updateDownRight(x, y, moveBy, smoke, water);
-            return;
-        }
-//        else if(particleTypeToMove ==fire){
-//            updateDownRight(x, y, moveBy, smoke, smoke);
-//            return;
-//        }
-    }
-
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, 15);
-    if(moveBy!= 0)
-    {
-        if(particleTypeToMove ==air){
-            updateRight(x, y, moveBy, air, water);
-            return;
-        }
-//        else if(particleTypeToMove ==oil){
-//            updateRight(x, y, moveBy, oil, water);
-//            return;
-//        }
-        else if(particleTypeToMove ==smoke){
-            updateRight(x, y, moveBy, smoke, water);
-            return;
-        }
-//        else if(particleTypeToMove ==fire){
-//            updateRight(x, y, moveBy, smoke, smoke);
-//            return;
-//        }
+        updateRight(x, y, moveBy, particleTypeToMove, water);
+        return;
     }
 
 
+}
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, 15);
-    if(moveBy!= 0)
-    {
-        if(particleTypeToMove ==air){
-            updateLeft(x, y, moveBy, air, water);
-            return;
-        }
-//        else if(particleTypeToMove ==oil){
-//            updateLeft(x, y, moveBy, oil, water);
-//            return;
-//        }
-        else if(particleTypeToMove ==smoke){
-            updateLeft(x, y, moveBy, smoke, water);
-            return;
-        }
-//        else if(particleTypeToMove ==fire){
-//            updateLeft(x, y, moveBy, smoke, smoke);
-//            return;
-//        }
-    }
+//setting flags affects distribution of water and its speed, and also "pumping up" water effect, with certain set it disappears; also direction of waves kinda depends on the set
 
+void Water::updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
+{
+    world.setParticle(nextPrt, x, y+move_by);
+    world.setParticle(currentPrt, x, y );
+    //world.setFlag('f', x, y );
+    world.setFlag('f', x, y+move_by);
 }
 
 void Water::updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
@@ -199,15 +142,7 @@ void Water::updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, ch
     world.setParticle(nextPrt, x-move_by , y+move_by );
     world.setParticle(currentPrt, x, y );
     world.setFlag('f', x, y );
-    world.setFlag('f', x-move_by , y+move_by );
-}
-
-void Water::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x-move_by , y);
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x-move_by , y);
+    //world.setFlag('f', x-move_by , y+move_by );
 }
 
 void Water::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
@@ -215,29 +150,24 @@ void Water::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, c
     world.setParticle(nextPrt, x+move_by, y+move_by);
     world.setParticle(currentPrt, x, y );
     world.setFlag('f', x, y );
-    world.setFlag('f', x+move_by, y+move_by);
+    //world.setFlag('f', x+move_by, y+move_by);
+}
+
+void Water::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
+{
+    world.setParticle(nextPrt, x-move_by , y);
+    world.setParticle(currentPrt, x, y );
+    //world.setFlag('f', x, y );
+    world.setFlag('f', x-move_by , y);
 }
 
 void Water::updateRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
     world.setParticle(nextPrt, x+move_by , y);
     world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
+    //world.setFlag('f', x, y );
     world.setFlag('f', x+move_by , y);
 }
 
-void Water::updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x, y+move_by);
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x, y+move_by);
-}
 
-void Water::updateUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x, y-move_by);
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x, y-move_by);
-}
+

@@ -12,7 +12,8 @@ public:
 private:
     int checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel);
     int  checkHowFarIsWaterInGivenDir(int x, int y, int dir_x, int dir_y, int vel);
-
+    bool disperseOil(int &x, int &y);
+    void setOilVelocitytoType(char& particleTypeToMove, int& vel);
 
     void updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
     void updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
@@ -23,6 +24,8 @@ private:
     void updateUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
     void updateUpRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
     void updateUpLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt);
+
+
 
     World world;
     int vel; //velocity

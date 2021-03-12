@@ -152,7 +152,7 @@ void checkLeftClicks(sf::RenderWindow& window)
         switch (particle_button) {
         case SAND:
         {
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10 ; ++i) {
                 world.setParticle(sand, clickPosi.x + addX, clickPosi.y +addY);
                 //world.setFlag(n, clickPosi.x + addX, clickPosi.y +addY); //- creates invisible sand if mouse not moved
 
@@ -175,7 +175,7 @@ void checkLeftClicks(sf::RenderWindow& window)
         break;
         case OIL:
         {
-            for (int i = 0; i < 50  ; ++i) {
+            for (int i = 0; i < 110  ; ++i) {
                 world.setParticle(oil, clickPosi.x + addX, clickPosi.y +addY);
                 addX++;
             }
@@ -193,9 +193,9 @@ void checkLeftClicks(sf::RenderWindow& window)
         {
             for (int i = 0; i < 100 ; ++i) {
                 world.setParticle(water, clickPosi.x + addX, clickPosi.y +addY);
-                world.setFlag(f, clickPosi.x + addX, clickPosi.y +addY);
-                //addX++;
-                addY++;
+               // world.setFlag(f, clickPosi.x + addX, clickPosi.y +addY);
+                 addX++;
+                //addY++;
                 //number++;
             }
         }
@@ -235,9 +235,7 @@ void updateUpLeft(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireC
             if(currentC == air || currentC == rock) continue;
 
             if(currentC == sand)
-                if(sandClass.moveSandinAir(x, y)== false)
-                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
-                        if(sandClass.moveSandInOil(x, y)== false);
+                sandClass.moveSand(x, y);
 
 
             if(currentC == water) //WATER
@@ -270,9 +268,8 @@ void updateUpRight(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fire
             if(currentC == air || currentC == rock) continue;
 
             if(currentC == sand)
-                if(sandClass.moveSandinAir(x, y)== false)
-                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
-                        if(sandClass.moveSandInOil(x, y)== false);
+                sandClass.moveSand(x, y);
+
 
             if(currentC == water) //WATER
                 waterClass.moveWater(x, y);
@@ -305,9 +302,7 @@ void updateLeft(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireCla
             if(currentC == air || currentC == rock) continue;
 
             if(currentC == sand)
-                if(sandClass.moveSandinAir(x, y)== false)
-                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
-                        if(sandClass.moveSandInOil(x, y)== false);
+                sandClass.moveSand(x, y);
 
             if(currentC == water) //WATER
                 waterClass.moveWater(x, y);
@@ -340,9 +335,7 @@ void updateRight(Sand& sandClass, Water& waterClass, Oil& oilClass, Fire& fireCl
             if(currentC == air || currentC == rock) continue;
 
             if(currentC == sand)
-                if(sandClass.moveSandinAir(x, y)== false)
-                    if(sandClass.moveSandInWater(x, y)== false)  //cant return here or continue, cause in the same for loop i must check other particles like water
-                        if(sandClass.moveSandInOil(x, y)== false);
+                sandClass.moveSand(x, y);
 
             if(currentC == water) //WATER
                 waterClass.moveWater(x, y);
@@ -418,7 +411,6 @@ int main()
     va.setPrimitiveType(sf::Points);
     sf::Vertex v;
 
-
     std::cout << "matrix address in main: " << &matrix << std::endl;
 
     while (window.isOpen())
@@ -428,6 +420,8 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+            if(event.type == sf::Event::Resized)
+                window.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
         }
 
         window.clear();
@@ -514,26 +508,52 @@ int main()
         }
 
 
+          // updateLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
 
-        if(switcher==0){
-            updateLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
-            switcher=1;
-        }
-        else if(switcher==1)
-        {
-            updateUpLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
-            switcher =2;
-        }
-        else if(switcher==2)
-        {
-            updateRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
-            switcher =3;
-        }
-        else if(switcher==3)
-        {
-            updateUpRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
-            switcher =0;
-        }
+
+
+
+//        if(switcher==0){
+//            updateLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+//            switcher=1;
+//        }
+//        else if(switcher==1)
+//        {
+//            updateUpLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+//            switcher =2;
+//        }
+//        else if(switcher==2)
+//        {
+//            updateRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+//            switcher =3;
+//        }
+//        else if(switcher==3)
+//        {
+//            updateUpRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+//            switcher =0;
+//        }
+
+
+                if(switcher==0){
+                    updateLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+                    switcher=1;
+                }
+                else if(switcher==1)
+                {
+                    updateUpLeft(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+                    switcher =2;
+                }
+                else if(switcher==2)
+                {
+                    updateUpRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+
+                    switcher =3;
+                }
+                else if(switcher==3)
+                {
+                     updateRight(sandClass, waterClass, oilClass, fireClass, smokeClass, woodClass);
+                    switcher =0;
+                }
 
         window.draw(va);
         va.clear();

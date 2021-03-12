@@ -7,243 +7,135 @@ Oil::Oil(World &world_)
 }
 
 
+void Oil::setOilVelocitytoType(char& particleTypeToMove, int& vel)
+{
+    //for these to modify the values of vel, the function must pass vel by reference to checkHowFarIsObstacleInGivenDir:
+    if(particleTypeToMove==air)vel = 10 + std::rand()%35;
+    //if(particleTypeToMove==water)vel = 154 + std::rand()%25;
+    else if(particleTypeToMove==oil)vel = 1  ;
+}
+
+bool Oil::disperseOil(int &x, int &y)
+{
+    int r = std::rand()%15;
+    if(r==3){
+        int velDisp =25;
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, velDisp);
+        if(moveBy> 0)
+        {
+            updateLeft(x, y, moveBy, particleTypeToMove, oil);
+            return true;
+        }
+    }else if(r ==2){
+        int velDisp =25;
+        moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, velDisp);
+        if(moveBy> 0)
+        {
+            updateRight(x, y, moveBy, particleTypeToMove, oil);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 int Oil::checkHowFarIsObstacleInGivenDir(int x, int y, int dir_x, int dir_y, int vel)
 {
-    particleTypeToMove = '0'; //reset
-    vel = 8 + std::rand()%8;
+
     int i;
-    char firstEncounteredTypeOnPath = '0';
+    particleTypeToMove = '0'; //reset is needed not to preserve the previous state
+
     for (i = 1; i <= vel; ++i)
     {
         if(x+i-1>= Width || x-i-1<=  0 || y+i-1 >=Hight || y-i-1 <= 0) //so water doesnt move through edges on the other side
             return 0;
-
         lookUpPrt = world.getParticleType(x+dir_x*i, y+dir_y*i);
         lookUpFlag = world.getFlag(x+dir_x*i, y+dir_y*i);
 
-        if(lookUpPrt == air && lookUpFlag!= 'f' ){
-            particleTypeToMove =air;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
 
-        //BUT water causes a problem, because water shouldnt be penetrable by oil from (oil)updateDown, but should be penetrable from updateUp (so it can get on the surface of water) - thats why "&& dir_y == 1" cause  1 indcates checking Down (whats below oil)
-        else if(lookUpPrt == water && dir_y == 1 && lookUpFlag!= 'f' ){
-            //particleTypeToMove =oil;
+        if(lookUpPrt != sand && lookUpPrt != rock && lookUpPrt != wood && lookUpPrt != oil && lookUpPrt!= water && lookUpFlag != 'f'){ /*go to next iteration of for loop*/ }
+        else{
+            lookUpPrt = world.getParticleType(x+dir_x*(i-1), y+dir_y*(i-1));
+            particleTypeToMove = lookUpPrt;
             return i-1;
-        } //*  impenetrable substance for water moving up | so it means "im an oil particle, so i cant move down when water is below me"
-        else if(lookUpPrt == water && lookUpFlag!= 'f' ){
-            particleTypeToMove =water;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        else if(lookUpPrt == smoke && lookUpFlag!= 'f' ){
-            particleTypeToMove =smoke;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        else if(lookUpPrt == fire  && lookUpFlag!= 'f' ){
-            particleTypeToMove =fire;
-            if(firstEncounteredTypeOnPath = '0')
-                firstEncounteredTypeOnPath = lookUpPrt;
-            else if(lookUpPrt != firstEncounteredTypeOnPath)
-                return i;
-        }
-        /*impenetrable substances:*/
-        else if(lookUpPrt == sand || lookUpPrt == rock ||lookUpPrt == oil  || lookUpPrt == wood) //*
-        {
-            return i-1; //return position BEFORE rock/sand/oil/wood | here i return i within the loop
         }
     }
 
-    //here "i" is bigger by 1 as it's past for loop which inseases  ++i - thats why "return i-1" - so i can get the actual location of the desired interactive particle like air/water/smoke
-    return i-1; //return actual position OF air/water/smoke [so they can be replaced (moved/updated)] - so its interactive particles || so its like return i within the for loop (and not after it)
+    particleTypeToMove = lookUpPrt;
+    //setSandVelocitytoType(particleTypeToMove, vel);
+    return i-1;
 }
 
+int velSides = 25;
 
-/*It would be possible to set for each particle rules of interaction with all the other particles, but it SLOWS DOWN the program, so its better not to repeat once already defined rule FOR ONE of the particles in interaction [meaning setting the rules in one (of the 2 interacting classes) is enough ]:*/
 void Oil::moveOil(int& x, int& y)
 {
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, -1, vel); //UP
-    if(moveBy!= 0)
-    {
-        //if(particleTypeToMove ==air){
-        //updateUp(x, y, moveBy, smoke, oil); //if air is above water, do nothing
-        //return     //return here would prevent the other conditions below to be checked
-        //} else
 
-        if(particleTypeToMove ==water){
-            updateUp(x, y, moveBy, water, oil);
-            return;
-        }
-
-        //else if(particleTypeToMove ==smoke){
-        //updateUp(x, y, moveBy, air, oil);
-        //return
-        // }
-        //        else if(particleTypeToMove ==fire){
-        //            updateUp(x, y, moveBy, fire, fire);
-        //            return;
-        //        }
-    }
-
+    if(disperseOil(x, y)) return;
+    //=========
     moveBy = checkHowFarIsObstacleInGivenDir(x, y, 0, 1, vel); //DOWN
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateDown(x, y, moveBy, air, oil);
-            return;
-        }
-        //else if(particleTypeToMove ==water){
-        //updateDown(x, y, moveBy, water, oil);
-        //return;
-        // }
-        else if(particleTypeToMove ==smoke){
-            updateDown(x, y, moveBy, smoke, oil);
-            return;
-        }
-        //        else if(particleTypeToMove ==fire){
-        //            updateDown(x, y, moveBy, fire, fire);
-        //            return;
-        //        }
-
+        updateDown(x, y, moveBy, particleTypeToMove, oil);
+        return;
     }
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, vel); //DownLeft
+
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, velSides);
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateDownLeft(x, y, moveBy, air, oil);
-            return;
-        }
-        //else if(particleTypeToMove ==water){
-        //updateDownLeft(x, y, moveBy, water, oil);
-        //return;
-        //}
-        //        else if(particleTypeToMove ==smoke){
-        //            updateDownLeft(x, y, moveBy, smoke, oil);
-        //            return;
-        //        }
-        //        else if(particleTypeToMove ==fire){
-        //            updateDownLeft(x, y, moveBy, fire, fire);
-        //            return;
-        //        }
+
+        updateLeft(x, y, moveBy, particleTypeToMove, oil);
+        return;
 
     }
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, vel);
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, velSides);
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateDownRight(x, y, moveBy, air, oil);
-            return;
-        }
-        //else if(particleTypeToMove ==water){
-        //updateDownLeft(x, y, moveBy, water, oil);
-        //return;
-        //}
-        //        else if(particleTypeToMove ==smoke){
-        //            updateDownRight(x, y, moveBy, smoke, oil);
-        //            return;
-        //        }
-        //        else if(particleTypeToMove ==fire){
-        //            updateDownRight(x, y, moveBy, fire, fire);
-        //            return;
-        //        }
 
+        updateRight(x, y, moveBy, particleTypeToMove, oil);
+        return;
     }
 
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 0, vel); //left
+
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, 1, velSides); //Downleft
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateLeft(x, y, moveBy, air, oil);
-            return;
-        }
-        else if(particleTypeToMove ==water){
-            //oil should be able to move right and left, cause otherwise it wouldnt dispair underwater well:
-            updateLeft(x, y, moveBy, water, oil);
-            return;
-        }
-        //        else if(particleTypeToMove ==smoke){
-        //            updateLeft(x, y, moveBy, smoke, oil);
-        //            return;
-        //        }
-        //        else if(particleTypeToMove ==fire){
-        //            updateLeft(x, y, moveBy, fire, fire);
-        //            return;
-        //        }
+
+        updateDownLeft(x, y, moveBy, particleTypeToMove, oil);
+        return;
     }
 
 
-    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 0, vel); //Right
+
+    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, 1, velSides);
     if(moveBy!= 0)
     {
-        if(particleTypeToMove ==air){
-            updateRight(x, y, moveBy, air, oil);
-            return;
-        }
-        else if(particleTypeToMove ==water){
-            //oil should be able to move right and left, cause otherwise it wouldnt dispair underwater well:
-            updateRight(x, y, moveBy, water, oil);
-            return;
-        }
-        //        else if(particleTypeToMove ==smoke){
-        //            updateRight(x, y, moveBy, smoke, oil);
-        //            return;
-        //        }
-        //        else if(particleTypeToMove ==fire){
-        //            updateRight(x, y, moveBy, fire, fire);
-        //            return;
-        //        }
+
+        updateDownRight(x, y, moveBy, particleTypeToMove, oil);
+        return;
 
     }
-
-//    moveBy = checkHowFarIsObstacleInGivenDir(x, y, -1, -1, vel); //Up Left
-//    if(moveBy!= 0)
-//    {
-//        if(particleTypeToMove ==water){
-//            //oil should be able to move right and left, cause otherwise it wouldnt dispair underwater well:
-//            updateUpLeft(x, y, moveBy, water, oil);
-//            return;
-//        }
-//    }
-
-//    moveBy = checkHowFarIsObstacleInGivenDir(x, y, 1, -1, vel); //Up Right
-//    if(moveBy!= 0)
-//    {
-//        if(particleTypeToMove ==water){
-//            //oil should be able to move right and left, cause otherwise it wouldnt dispair underwater well:
-//            updateUpRight(x, y, moveBy, water, oil);
-//            return;
-//        }
-//    }
-
 }
 
+//setting flags affects distribution of water and its speed, and also "pumping up" water effect, with certain set it disappears; also direction of waves kinda depends on the set
 
+void Oil::updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
+{
+    world.setParticle(nextPrt, x, y+move_by);
+    world.setParticle(currentPrt, x, y );
+    //world.setFlag('f', x, y );
+    world.setFlag('f', x, y+move_by);
+}
 
 void Oil::updateDownLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
     world.setParticle(nextPrt, x-move_by , y+move_by );
     world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y ); //without it for ex. smoke appears in weird placed when fire hits water
-    world.setFlag('f', x-move_by , y+move_by );
-}
-
-void Oil::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x-move_by , y);
-    world.setParticle(currentPrt, x, y );
     world.setFlag('f', x, y );
-    world.setFlag('f', x-move_by , y);
+    //world.setFlag('f', x-move_by , y+move_by );
 }
 
 void Oil::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
@@ -251,46 +143,21 @@ void Oil::updateDownRight(int&  x, int&  y, int&  move_by, char& currentPrt, cha
     world.setParticle(nextPrt, x+move_by, y+move_by);
     world.setParticle(currentPrt, x, y );
     world.setFlag('f', x, y );
-    world.setFlag('f', x+move_by, y+move_by);
+    //world.setFlag('f', x+move_by, y+move_by);
+}
+
+void Oil::updateLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
+{
+    world.setParticle(nextPrt, x-move_by , y);
+    world.setParticle(currentPrt, x, y );
+    //world.setFlag('f', x, y );
+    world.setFlag('f', x-move_by , y);
 }
 
 void Oil::updateRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
 {
     world.setParticle(nextPrt, x+move_by , y);
     world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
+    //world.setFlag('f', x, y );
     world.setFlag('f', x+move_by , y);
-}
-
-void Oil::updateDown(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x, y+move_by);
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x, y+move_by);
-}
-
-/*in Water*/
-void Oil::updateUp(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x, y-move_by);
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x, y-move_by);
-}
-
-void Oil::updateUpRight(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x+move_by, y-move_by);
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x+move_by, y-move_by);
-}
-
-void Oil::updateUpLeft(int&  x, int&  y, int&  move_by, char& currentPrt, char& nextPrt)
-{
-    world.setParticle(nextPrt, x-move_by , y-move_by );
-    world.setParticle(currentPrt, x, y );
-    world.setFlag('f', x, y );
-    world.setFlag('f', x-move_by , y-move_by );
 }
